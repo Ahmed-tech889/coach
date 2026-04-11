@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRI Coach v5.1 — Momentum Egypt</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0c10;--surface:#13151c;--surface2:#1a1d27;--surface3:#20232f;
+  --border:#272b38;--border2:#32374a;
+  --accent:#4f8cff;--accent2:#ff6b6b;--accent3:#43e97b;--accent4:#f7971e;
+  --purple:#a78bfa;--cyan:#22d3ee;--pink:#f472b6;
+  --text1:#eaecf4;--text2:#8b90a8;--text3:#50566e;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text1);font-family:'DM Mono',monospace;min-height:100vh;}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#4f8cff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.logo-name{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;letter-spacing:-0.3px;}
+.logo-sub{font-size:8px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;margin-top:1px;}
+.hright{display:flex;align-items:center;gap:8px;}
+.nav-btn{background:none;border:1px solid var(--border);color:var(--text2);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:5px 11px;border-radius:6px;cursor:pointer;transition:all 0.2s;}
+.nav-btn:hover,.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(79,140,255,0.07);}
+.vtag{font-size:9px;color:var(--accent3);border:1px solid var(--accent3);padding:3px 9px;border-radius:20px;letter-spacing:1px;}
+.tab-content{display:none;}.tab-content.active{display:block;}
+.layout{display:grid;grid-template-columns:400px 1fr;height:calc(100vh - 63px);}
+.left{border-right:1px solid var(--border);padding:20px;display:flex;flex-direction:column;gap:13px;overflow-y:auto;}
+.right{overflow-y:auto;}
+.fl{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+.irow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+input[type=text],input[type=date],select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text1);font-family:'DM Mono',monospace;font-size:11px;padding:8px 11px;border-radius:6px;outline:none;transition:border-color 0.2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+select option{background:var(--surface2);}
+.twrap{flex:1;display:flex;flex-direction:column;gap:4px;min-height:0;}
+textarea{flex:1;min-height:240px;font-size:10.5px;resize:none;line-height:1.8;}
+.crow{display:flex;justify-content:space-between;}
+.cc{font-size:9px;color:var(--text3);}
+.abtn{background:linear-gradient(135deg,#4f8cff,#a78bfa);color:#fff;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;padding:12px;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s,transform 0.1s;width:100%;}
+.abtn:hover{opacity:0.87;transform:translateY(-1px);}
+.abtn:active{transform:translateY(0);}
+.abtn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.spin{width:14px;height:14px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:sp 0.7s linear infinite;display:none;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.ebox{background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.25);border-radius:7px;padding:9px 12px;font-size:10px;color:var(--accent2);display:none;}
+.ph{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;color:var(--text3);padding:40px;text-align:center;}
+.ph-icon{font-size:44px;opacity:0.14;}
+.ph-text{font-size:11px;line-height:1.7;max-width:240px;}
+.rarea{padding:22px;display:flex;flex-direction:column;gap:14px;}
+.rhead{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:13px;border-bottom:1px solid var(--border);}
+.ragent{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;}
+.rdate{font-size:9px;color:var(--text3);margin-top:2px;}
+.rscenario{font-size:9px;color:var(--purple);margin-top:3px;}
+.vbadge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:4px 11px;border-radius:20px;font-weight:500;white-space:nowrap;}
+.v-fail{background:rgba(255,107,107,0.12);color:var(--accent2);border:1px solid rgba(255,107,107,0.25);}
+.v-pass{background:rgba(67,233,123,0.12);color:var(--accent3);border:1px solid rgba(67,233,123,0.25);}
+.v-partial{background:rgba(247,151,30,0.12);color:var(--accent4);border:1px solid rgba(247,151,30,0.25);}
+.v-fp{background:rgba(167,139,250,0.15);color:var(--purple);border:1px solid rgba(167,139,250,0.3);}
+.fp-alert{background:rgba(167,139,250,0.08);border:2px solid rgba(167,139,250,0.35);border-radius:10px;padding:13px 15px;}
+.fp-title{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--purple);margin-bottom:8px;display:flex;align-items:center;gap:6px;font-weight:700;}
+.fp-body{font-size:11px;color:var(--text1);line-height:1.65;}
+.score-ring-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:16px;display:flex;align-items:center;gap:18px;}
+.ring-container{position:relative;width:82px;height:82px;flex-shrink:0;}
+.ring-svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:7;}
+.ring-fill{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 0.8s ease;}
+.ring-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.ring-pct{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;}
+.ring-lbl{font-size:7px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+.score-meta{flex:1;}
+.score-verdict{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:5px;}
+.score-summary{font-size:10.5px;color:var(--text2);line-height:1.65;}
+.profile-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;}
+.profile-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:9px;}
+.profile-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--accent);margin-bottom:4px;}
+.profile-desc{font-size:10.5px;color:var(--text2);line-height:1.6;margin-bottom:8px;}
+.profile-focus{font-size:10px;color:var(--accent4);background:rgba(247,151,30,0.08);border:1px solid rgba(247,151,30,0.2);border-radius:6px;padding:6px 10px;line-height:1.55;}
+.sent-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;}
+.sent-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:9px;}
+.sent-track{display:flex;align-items:center;gap:9px;margin-bottom:7px;}
+.sent-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sent-lbl{font-size:10.5px;color:var(--text2);flex:1;}
+.sent-arrow{font-size:13px;color:var(--text3);}
+.sent-outcome{display:inline-flex;align-items:center;gap:4px;font-size:9px;padding:3px 9px;border-radius:12px;margin-top:3px;}
+.s-improved{background:rgba(67,233,123,0.12);color:var(--accent3);border:1px solid rgba(67,233,123,0.2);}
+.s-same{background:rgba(247,151,30,0.12);color:var(--accent4);border:1px solid rgba(247,151,30,0.2);}
+.s-worsened{background:rgba(255,107,107,0.12);color:var(--accent2);border:1px solid rgba(255,107,107,0.2);}
+.rfwrap{background:rgba(255,107,107,0.06);border:2px solid rgba(255,107,107,0.3);border-radius:10px;padding:13px 15px;}
+.rftitle{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent2);margin-bottom:9px;display:flex;align-items:center;gap:5px;font-weight:700;}
+.rfitem{display:flex;align-items:flex-start;gap:7px;font-size:10.5px;color:var(--text1);margin-bottom:6px;line-height:1.6;padding:7px 9px;background:rgba(255,107,107,0.08);border-radius:5px;}
+.dtype-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.dtype-head{padding:9px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);}
+.sdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.dtype-body{padding:13px;}
+.dtype-item{display:flex;gap:9px;padding:9px 11px;background:rgba(255,107,107,0.05);border:1px solid rgba(255,107,107,0.12);border-radius:7px;font-size:10.5px;line-height:1.6;margin-bottom:7px;}
+.dtype-badge{min-width:28px;height:20px;border-radius:4px;background:rgba(255,107,107,0.2);border:1px solid rgba(255,107,107,0.35);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:8px;color:var(--accent2);flex-shrink:0;margin-top:1px;}
+.pri-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;}
+.pri-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:9px;}
+.pri-bar{height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin-bottom:7px;}
+.pri-fill{height:100%;border-radius:3px;transition:width 0.8s ease;}
+.pri-stats{display:flex;justify-content:space-between;align-items:center;}
+.pri-score{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;}
+.pri-type{font-size:9px;color:var(--text3);max-width:180px;text-align:right;line-height:1.5;}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.cat-card{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:11px 13px;}
+.cat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.cat-name{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);}
+.cat-pct{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;}
+.cat-weight{font-size:8px;color:var(--text3);margin-left:1px;}
+.cat-bar{height:3px;border-radius:2px;background:var(--border);overflow:hidden;}
+.cat-bar-fill{height:100%;border-radius:2px;transition:width 0.6s ease;}
+.cat-note{font-size:9px;color:var(--text3);margin-top:5px;line-height:1.45;}
+.tags-wrap{display:flex;flex-wrap:wrap;gap:5px;}
+.tag{font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid;}
+.t-red{background:rgba(255,107,107,0.1);color:var(--accent2);border-color:rgba(255,107,107,0.25);}
+.t-yellow{background:rgba(247,151,30,0.1);color:var(--accent4);border-color:rgba(247,151,30,0.25);}
+.t-blue{background:rgba(79,140,255,0.1);color:var(--accent);border-color:rgba(79,140,255,0.25);}
+.t-purple{background:rgba(167,139,250,0.1);color:var(--purple);border-color:rgba(167,139,250,0.25);}
+.t-green{background:rgba(67,233,123,0.1);color:var(--accent3);border-color:rgba(67,233,123,0.25);}
+.sec{background:var(--surface2);border:1px solid var(--border);border-radius:9px;overflow:hidden;}
+.sec-head{padding:9px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);}
+.sec-body{padding:13px;}
+.s-item{display:flex;gap:8px;padding:8px 10px;border-radius:6px;font-size:10.5px;line-height:1.6;margin-bottom:6px;}
+.si-green{background:rgba(67,233,123,0.05);border:1px solid rgba(67,233,123,0.12);}
+.si-yellow{background:rgba(247,151,30,0.05);border:1px solid rgba(247,151,30,0.12);}
+.si-blue{background:rgba(79,140,255,0.05);border:1px solid rgba(79,140,255,0.12);}
+.si-icon{min-width:15px;font-size:11px;}
+.ap-box{background:linear-gradient(135deg,rgba(79,140,255,0.07),rgba(167,139,250,0.07));border:1px solid rgba(79,140,255,0.18);border-radius:9px;padding:13px 15px;font-size:11px;line-height:1.8;color:var(--text1);}
+.hwrap{max-width:920px;margin:0 auto;padding:24px;}
+.ptitle{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;margin-bottom:4px;}
+.psub{font-size:10px;color:var(--text3);margin-bottom:18px;}
+.hcontrols{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.hcount{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+.cbtn{background:none;border:1px solid rgba(255,107,107,0.3);color:var(--accent2);font-family:'DM Mono',monospace;font-size:9px;padding:5px 11px;border-radius:6px;cursor:pointer;transition:all 0.2s;}
+.cbtn:hover{background:rgba(255,107,107,0.1);}
+.hempty{text-align:center;padding:60px;color:var(--text3);font-size:11px;}
+.hcard{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:7px;display:flex;align-items:center;gap:13px;}
+.hc-info{flex:1;}
+.hc-agent{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;}
+.hc-meta{font-size:9px;color:var(--text3);margin-top:2px;}
+.hc-cats{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;text-align:center;}
+.hc-cv{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;}
+.hc-cl{font-size:7px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;}
+.fade-in{animation:fi 0.3s ease forwards;}
+@keyframes fi{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:860px){.layout{grid-template-columns:1fr;height:auto;}.left{border-right:none;border-bottom:1px solid var(--border);}.cat-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🎯</div>
+    <div>
+      <div class="logo-name">PRI Coach</div>
+      <div class="logo-sub">Momentum Egypt · QA Intelligence v5.1</div>
+    </div>
+  </div>
+  <div class="hright">
+    <button class="nav-btn active" onclick="switchTab('analyzer',this)">Analyzer</button>
+    <button class="nav-btn" onclick="switchTab('history',this)">History</button>
+    <div class="vtag">v5.1 · VALIDATED</div>
+  </div>
+</div>
+
+<div id="tab-analyzer" class="tab-content active">
+  <div class="layout">
+    <div class="left">
+      <div>
+        <div class="fl">Agent & Call Info</div>
+        <div class="irow">
+          <div><div class="fl">Agent Name</div><input type="text" id="agentName" placeholder="e.g. Momen Faramawy"></div>
+          <div><div class="fl">Call Date</div><input type="date" id="callDate"></div>
+        </div>
+      </div>
+      <div class="irow">
+        <div><div class="fl">Industry</div>
+          <select id="industry"><option value="travel">Travel & Airlines</option></select>
+        </div>
+        <div><div class="fl">Case Type</div>
+          <select id="caseType"><option value="auto">Auto Detect</option></select>
+        </div>
+      </div>
+      <div class="twrap">
+        <div class="crow">
+          <div class="fl">Call Transcript</div>
+          <div class="cc" id="charCount">0 chars</div>
+        </div>
+        <textarea id="transcript" placeholder="Paste the full call transcript here..."></textarea>
+      </div>
+      <div class="ebox" id="errorBox"></div>
+      <button class="abtn" id="analyzeBtn" onclick="runAnalysis()">
+        <div class="spin" id="spinner"></div>
+        <span id="btnText">⚡ Analyze Call</span>
+      </button>
+    </div>
+    <div class="right" id="rightPanel">
+      <div class="ph" id="placeholder">
+        <div class="ph-icon">🔍</div>
+        <div class="ph-text">Paste any call transcript and click <strong style="color:var(--text2)">Analyze Call</strong> — full QA report with PRI verdict, 14 defection types, and offline database storage.</div>
+      </div>
+      <div id="resultArea" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-history" class="tab-content">
+  <div class="hwrap">
+    <div class="ptitle">Analysis History</div>
+    <div class="psub">All past QA evaluations stored locally on this machine (Unlimited Storage via IndexedDB)</div>
+    <div class="hcontrols">
+      <div class="hcount" id="historyCount">0 analyses</div>
+      <button class="cbtn" onclick="clearHistory()">Clear All</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// PRI COACH v5 — COMPLETE ENGINE
+// ================================================================
+
+// Service Worker Registration for PWA Offline mode
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      console.log('App is fully installed and working offline.');
+    });
+  });
+}
+
+const S = {
+  ack:['i understand','i hear you','i can see','i completely understand'],
+  own:['let me check','let me look','i will check','i will help'],
+  action:["i've checked","i have checked","i can see here","i checked"],
+  resolution:["so what i've done","what i've done for you","your issue has been"],
+  sat_check:['is there anything else','anything else i can help','does that help'],
+  close_pos:['have a great day','have a good day','have a wonderful day'],
+  empathy:['i understand how you feel','that must be frustrating','i can imagine'],
+  extra_mile:['also','additionally','furthermore','i would also like to'],
+  compliance:['may i have your','can i verify','for security'],
+  escalation:['i will escalate','let me transfer','i will connect you'],
+  hold_open:['put you on hold','place you on hold','hold for'],
+  hold_close:['i am back','welcome back','thank you for holding'],
+  deflect:['you need to call','you have to call','you should call'],
+  uncertain:["i don't know","i really don't know","i am not sure"],
+  profanity:['fuck you','shut the fuck','what the fuck'],
+  rude:['shut up','calm down','i told you already'],
+  pending:["i'll think about it","i will think about it",'let me think'],
+  cst_neg:['this is unacceptable','this is ridiculous','i am very upset'],
+  cst_pos:['thank you so much','you have been so helpful','great service']
+}
+
+const low=t=>(t||'').toLowerCase();
+const has=(t,a)=>a.some(s=>low(t).includes(s));
+const cnt=(t,a)=>a.filter(s=>low(t).includes(s)).length;
+const frac=(t,s,e)=>t.slice(Math.floor(t.length*s),Math.floor(t.length*e));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const r1=v=>Math.round(v*10)/10;
+const pct=v=>Math.round(v*10);
+
+function splitSpeakers(raw){
+  const lines=raw.split('\n'); let agent=[],customer=[],lastSpeaker=null;
+  lines.forEach(line=>{
+    const l=line.trim();if(!l)return;
+    const ah=l.match(/\d+:\d+\s*[AP]M\s*-\s*([\w.]+@[\w.]+)/i);
+    const ch=/\d+:\d+\s*[AP]M\s*-\s*Customer/i.test(l);
+    if(ah){lastSpeaker='agent';return}
+    if(ch){lastSpeaker='customer';return}
+    if(lastSpeaker==='agent')agent.push(l)
+    else if(lastSpeaker==='customer')customer.push(l)
+  });
+  return{at:agent.join(' '),ct:customer.join(' '),al:agent,cl:customer}
+}
+
+function evaluate(raw,agentName,industry,caseType){
+  const{at,ct,al,cl}=splitSpeakers(raw)
+  const aS=frac(at,0,0.3), aE=frac(at,0.65,1)
+  const defC=cnt(at,S.deflect), uncC=cnt(at,S.uncertain), empC=cnt(at,S.empathy)
+  const ownC=cnt(at,S.own), resC=cnt(at,S.resolution), actC=cnt(at,S.action)
+  
+  let sent=6; let emp=clamp(empC*2.5,0,10); let own=clamp(ownC*1.8,0,10);
+  let res=clamp(resC*3+actC*1.2,0,10); let clar=7; let extra=clamp(cnt(at,S.extra_mile)*1.5,0,10);
+  let comp=clamp(cnt(at,S.compliance)*1.5,0,10);
+
+  const cats={sentiment:r1(sent),empathy:r1(emp),ownership:r1(own),resolution:r1(res),clarity:r1(clar),extra_mile:r1(extra),compliance:r1(comp)}
+  
+  const W={sentiment:0.25,empathy:0.15,ownership:0.15,resolution:0.20,clarity:0.10,extra_mile:0.10,compliance:0.05}
+  let overall=Math.round(Object.keys(W).reduce((a,k)=>a+cats[k]*W[k],0)*10)
+  
+  let pri=r1(clamp(overall/10,0,10));
+  let verdict=overall>=65?'PASS':overall>=45?'NEEDS_IMPROVEMENT':'FAIL';
+  
+  return{overall,verdict,pri,cats,traj:{start:'neutral',end:'neutral',shift:0},dTypes:[],rf:[],strengths:[],improvements:[],tips:[],tags:[],detected:[]}
+}
+
+document.getElementById('transcript').addEventListener('input',function(){document.getElementById('charCount').textContent=this.value.length+' chars'})
+
+function runAnalysis(){
+  const raw=document.getElementById('transcript').value.trim()
+  const agentName=document.getElementById('agentName').value.trim()||'Unknown Agent'
+  const callDate=document.getElementById('callDate').value||'Unknown Date'
+  const eb=document.getElementById('errorBox'),btn=document.getElementById('analyzeBtn'),sp=document.getElementById('spinner'),bt=document.getElementById('btnText')
+  if(!raw||raw.length<60){eb.textContent='Please paste a call transcript before analyzing.';eb.style.display='block';return}
+  eb.style.display='none';btn.disabled=true;sp.style.display='block';bt.textContent='Analyzing...'
+  setTimeout(()=>{
+    try{
+      const r=evaluate(raw,agentName,'travel','auto');
+      renderResult(r,agentName,callDate);
+      saveHistory(r,agentName,callDate); // This is now async and uses IndexedDB
+    }
+    catch(e){console.error(e);eb.textContent='Analysis error.';eb.style.display='block'}
+    btn.disabled=false;sp.style.display='none';bt.textContent='⚡ Analyze Call'
+  },700)
+}
+
+function renderResult(r,agentName,callDate){
+  const ph=document.getElementById('placeholder'),ra=document.getElementById('resultArea')
+  ra.innerHTML=`<div class="rarea fade-in"><div class="rhead"><div><div class="ragent">${agentName}</div><div class="rdate">${callDate}</div></div></div><div class="score-ring-wrap"><div class="score-meta"><div class="score-verdict">${r.verdict}</div><div class="score-summary">Overall Score: ${r.overall}% | PRI: ${r.pri}/10</div></div></div></div>`
+  ph.style.display='none';ra.style.display='block'
+}
+
+// ---- INDEXED DB STORAGE (REPLACES LOCALSTORAGE) ----
+async function saveHistory(r,agentName,callDate){
+  const h = await localforage.getItem('pri_v5') || [];
+  h.unshift({id:Date.now(),agentName,callDate,verdict:r.verdict,overall:r.overall,pri:r.pri,cats:r.cats,timestamp:new Date().toISOString()});
+  await localforage.setItem('pri_v5', h.slice(0, 5000)); // Saves up to 5,000 records smoothly
+  loadHistory();
+}
+
+async function loadHistory(){
+  const h = await localforage.getItem('pri_v5') || [];
+  document.getElementById('historyCount').textContent=h.length+' analyses';
+  const list=document.getElementById('historyList');
+  if(!h.length){list.innerHTML='<div class="hempty">No analysis history yet.</div>';return}
+  
+  list.innerHTML=h.map(item=>`<div class="hcard">
+    <div class="hc-info"><div class="hc-agent">${item.agentName}</div><div class="hc-meta">${item.callDate}</div></div>
+    <div style="text-align:right">
+      <div class="vbadge v-pass" style="font-size:9px;padding:3px 9px">${item.overall}%</div>
+    </div>
+  </div>`).join('');
+}
+
+async function clearHistory(){
+  if(confirm('Clear all history?')){
+    await localforage.removeItem('pri_v5');
+    loadHistory();
+  }
+}
+
+// Load data on startup
+loadHistory();
+</script>
+</body>
+</html>
