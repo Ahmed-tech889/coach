@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRI Coach v5.1 — Momentum Egypt</title>
+<title>PRI Coach v5.2 — Momentum Egypt</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
 
@@ -158,13 +158,13 @@ textarea{flex:1;min-height:240px;font-size:10.5px;resize:none;line-height:1.8;}
     <div class="logo-icon">🎯</div>
     <div>
       <div class="logo-name">PRI Coach</div>
-      <div class="logo-sub">Momentum Egypt · QA Intelligence v5.1</div>
+      <div class="logo-sub">Momentum Egypt · QA Intelligence v5.2</div>
     </div>
   </div>
   <div class="hright">
     <button class="nav-btn active" onclick="switchTab('analyzer',this)">Analyzer</button>
     <button class="nav-btn" onclick="switchTab('history',this)">History</button>
-    <div class="vtag">v5.1 · VALIDATED</div>
+    <div class="vtag">v5.2 · ENHANCED</div>
   </div>
 </div>
 
@@ -223,7 +223,7 @@ textarea{flex:1;min-height:240px;font-size:10.5px;resize:none;line-height:1.8;}
 
 <script>
 // ================================================================
-// PRI COACH v5 — COMPLETE ENGINE
+// PRI COACH v5.2 — ENHANCED KEYWORD DICTIONARIES
 // ================================================================
 
 // Service Worker Registration for PWA Offline mode
@@ -235,128 +235,540 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ================================================================
+// KEYWORD DICTIONARIES — v5.2 EXPANDED
+// ================================================================
 const S = {
-  ack:['i understand','i hear you','i can see','i completely understand'],
-  own:['let me check','let me look','i will check','i will help'],
-  action:["i've checked","i have checked","i can see here","i checked"],
-  resolution:["so what i've done","what i've done for you","your issue has been"],
-  sat_check:['is there anything else','anything else i can help','does that help'],
-  close_pos:['have a great day','have a good day','have a wonderful day'],
-  empathy:['i understand how you feel','that must be frustrating','i can imagine'],
-  extra_mile:['also','additionally','furthermore','i would also like to'],
-  compliance:['may i have your','can i verify','for security'],
-  escalation:['i will escalate','let me transfer','i will connect you'],
-  hold_open:['put you on hold','place you on hold','hold for'],
-  hold_close:['i am back','welcome back','thank you for holding'],
-  deflect:['you need to call','you have to call','you should call'],
-  uncertain:["i don't know","i really don't know","i am not sure"],
-  profanity:['fuck you','shut the fuck','what the fuck'],
-  rude:['shut up','calm down','i told you already'],
-  pending:["i'll think about it","i will think about it",'let me think'],
-  cst_neg:['this is unacceptable','this is ridiculous','i am very upset'],
-  cst_pos:['thank you so much','you have been so helpful','great service']
+
+  // ── AGENT ACKNOWLEDGMENT ─────────────────────────────────────
+  // Detects when agent verbally acknowledges the customer's situation
+  ack: [
+    'i understand','i hear you','i can see','i completely understand',
+    'i totally understand','i do understand','absolutely understand',
+    'i get that','i can see why','i can understand why',
+    'that makes sense','i appreciate you sharing',
+    'i hear what you are saying','i hear what you\'re saying',
+    'i understand your concern','i understand your frustration',
+    'i understand how important','i understand how stressful'
+  ],
+
+  // ── AGENT OWNERSHIP / COMMITMENT ─────────────────────────────
+  // Detects agent taking personal ownership of the issue
+  own: [
+    'let me check','let me look','i will check','i will help',
+    'i will take care','let me take care','i am going to check',
+    'i\'m going to check','i am going to help','i\'m going to help',
+    'allow me to','let me pull up','let me access','let me review',
+    'i will handle','i am handling','i\'ll handle','i\'ll look into',
+    'let me look into','i will look into','i am looking into'
+  ],
+
+  // ── AGENT ACTION CONFIRMATION ─────────────────────────────────
+  // Detects agent confirming what they have already done
+  action: [
+    'i\'ve checked','i have checked','i can see here','i checked',
+    'i\'ve gone ahead','i have gone ahead','i\'ve already','i have already',
+    'i\'ve updated','i have updated','i\'ve processed','i have processed',
+    'i\'ve applied','i have applied','i\'ve added','i have added',
+    'i\'ve made the changes','i have made the changes',
+    'i\'ve noted','i have noted','i\'ve confirmed','i have confirmed',
+    'looking at your booking','looking at your reservation',
+    'i can see your booking','i can see your reservation',
+    'i can see your account','pulling up your details'
+  ],
+
+  // ── PRI RESOLUTION CONFIRMATION ──────────────────────────────
+  // Detects explicit resolution/fix statements — critical for PRI scoring
+  resolution: [
+    'so what i\'ve done','what i\'ve done for you','your issue has been',
+    'i\'ve gone ahead and','i have gone ahead and',
+    'i\'ve resolved','i have resolved','i\'ve fixed','i have fixed',
+    'i\'ve sorted','i have sorted this','this has been resolved',
+    'that has been taken care of','i\'ve taken care of',
+    'i have taken care of','your request has been',
+    'the change has been made','the update has been made',
+    'i\'ve made that change','i have made that change',
+    'everything is now updated','that is now confirmed',
+    'you are all set','you\'re all set'
+  ],
+
+  // ── PRI SATISFACTION CHECK ────────────────────────────────────
+  // Detects agent checking if the customer is satisfied — key PRI close signal
+  sat_check: [
+    'is there anything else','anything else i can help','does that help',
+    'have i fully resolved','have i completely resolved',
+    'does that answer your question','does that make sense',
+    'is that okay for you','does that work for you',
+    'are you happy with that','is that acceptable',
+    'have i addressed your concern','have i addressed everything',
+    'is everything clear','is there anything i can clarify',
+    'did that resolve your issue','did that solve your problem'
+  ],
+
+  // ── POSITIVE CALL CLOSE ───────────────────────────────────────
+  // Detects warm, professional call endings — confirms PRI close attempt
+  close_pos: [
+    'have a great day','have a good day','have a wonderful day',
+    'have a safe trip','enjoy your trip','enjoy your travels',
+    'have a great flight','enjoy your flight',
+    'it was my pleasure','my pleasure to assist',
+    'thank you for calling','thank you for contacting',
+    'thank you for your patience','thanks for your patience',
+    'we appreciate your business','we value your business',
+    'take care','you\'re welcome and have','we look forward to'
+  ],
+
+  // ── AGENT EMPATHY ─────────────────────────────────────────────
+  // Detects genuine empathy statements — weighted heavily in PRI scoring
+  empathy: [
+    'i understand how you feel','that must be frustrating','i can imagine',
+    'i sincerely apologize','i truly apologize','i am so sorry',
+    'i\'m so sorry','i am deeply sorry','that must be stressful',
+    'i know how stressful travel can be','i know how important this is',
+    'i understand this is urgent','i understand this is important',
+    'i can imagine how frustrating','i can imagine how stressful',
+    'i\'m sorry to hear that','i am sorry to hear that',
+    'i apologize for the inconvenience','i apologize for any confusion',
+    'that is completely understandable','that\'s completely understandable',
+    'you are absolutely right','you\'re absolutely right',
+    'i completely understand your frustration',
+    'i understand this has been a difficult experience'
+  ],
+
+  // ── EXTRA MILE / PROACTIVE HELP ───────────────────────────────
+  extra_mile: [
+    'also','additionally','furthermore','i would also like to',
+    'i also want to','i also noticed','while i have you',
+    'while i\'m here','one more thing i can do','i can also',
+    'as a courtesy','as a one-time exception','i went ahead and',
+    'i\'ve also checked','i have also checked'
+  ],
+
+  // ── COMPLIANCE / VERIFICATION ────────────────────────────────
+  compliance: [
+    'may i have your','can i verify','for security',
+    'can i get your','could i have your','may i confirm',
+    'for verification purposes','to verify your account',
+    'can you confirm your','could you confirm your',
+    'for security purposes','for account security'
+  ],
+
+  // ── ESCALATION / TRANSFER ────────────────────────────────────
+  // Detects escalation and warm vs cold transfers
+  escalation: [
+    'i will escalate','let me transfer','i will connect you',
+    'i\'m going to transfer','i am going to transfer',
+    'let me connect you','let me put you through',
+    'i\'ll connect you with','i will connect you with',
+    'let me get a supervisor','i\'ll get a supervisor',
+    'transferring you now','i\'m transferring you',
+    'i am transferring you','my colleague will assist',
+    'the specialist will help','our specialist team'
+  ],
+
+  // ── HOLD — OPENING ────────────────────────────────────────────
+  // Detects when agent places customer on hold — formal AND informal
+  hold_open: [
+    'put you on hold','place you on hold','hold for',
+    'i\'ll put you on hold','i will put you on hold',
+    'give me one moment','give me one second','give me two minutes',
+    'give me a moment','bear with me','bare with me',
+    'one moment please','one moment while i','just a moment',
+    'bear with me while','please hold','if you could hold',
+    'i need to check something','let me just check something',
+    'i\'ll be right back','i will be right back'
+  ],
+
+  // ── HOLD — CLOSING / RETURN ───────────────────────────────────
+  // Detects when agent returns from hold — important for hold handling score
+  hold_close: [
+    'i am back','welcome back','thank you for holding',
+    'thanks for holding','thank you for your patience',
+    'thanks for your patience','i\'m back','i have the information',
+    'i have an update','so i\'ve checked','so i have checked',
+    'i\'ve looked into that','i have looked into that',
+    'so after checking','after looking into this',
+    'i\'ve got the details','i have the details now'
+  ],
+
+  // ── DEFLECTION ───────────────────────────────────────────────
+  // Detects when agent pushes customer away instead of owning the issue
+  deflect: [
+    'you need to call','you have to call','you should call',
+    'you need to contact','you have to contact','you will need to',
+    'that\'s not something i can','that is not something i can',
+    'you would need to','you\'ll need to','i cannot help with that',
+    'i can\'t help with that','that\'s not my department',
+    'you need to go through','that\'s handled by',
+    'the airline handles','that is handled by'
+  ],
+
+  // ── AGENT UNCERTAINTY ────────────────────────────────────────
+  // Detects weak/uncertain language that erodes customer confidence
+  uncertain: [
+    'i don\'t know','i really don\'t know','i am not sure',
+    'i\'m not sure','i\'m not certain','i am not certain',
+    'i\'m not 100%','i am not 100%','i think so but',
+    'i believe so but','i\'m not totally sure',
+    'i cannot tell you for sure','i can\'t tell you for sure',
+    'i\'m unsure','i am unsure','that\'s unclear to me',
+    'i would have to guess','i\'m not familiar with'
+  ],
+
+  // ── AGENT RUDENESS ───────────────────────────────────────────
+  rude: [
+    'shut up','calm down','i told you already',
+    'as i already said','as i said before','i already told you',
+    'you need to listen','let me finish','stop interrupting',
+    'that\'s not possible at all','it\'s just not possible',
+    'there is nothing i can do','there\'s nothing i can do',
+    'that\'s the policy','i just follow the rules',
+    'i already explained this'
+  ],
+
+  // ── AGENT PROFANITY ──────────────────────────────────────────
+  profanity: [
+    'fuck you','shut the fuck','what the fuck',
+    'are you kidding me','are you serious right now',
+    'this is ridiculous','that\'s absurd'
+  ],
+
+  // ── CUSTOMER ANGRY / FRUSTRATED (OVERT) ──────────────────────
+  // Detects clear, vocal customer frustration and anger signals
+  cst_neg: [
+    'this is unacceptable','this is ridiculous','i am very upset',
+    'i\'m very upset','i am extremely frustrated','i\'m extremely frustrated',
+    'i am so frustrated','i\'m so frustrated','this is outrageous',
+    'i\'ve been waiting for hours','i have been waiting for hours',
+    'i\'ve been on hold forever','i have been on hold forever',
+    'this is a disaster','complete disaster','absolute disaster',
+    'this is the worst','worst airline','worst service i have ever',
+    'i want a refund','i want my money back','i demand a refund',
+    'i\'m going to dispute this','i am going to dispute this',
+    'i\'m filing a complaint','i am filing a complaint',
+    'this is not okay','this is not acceptable','how is this possible',
+    'nobody helps me','no one helps me','no one can help me',
+    'i keep getting transferred','i\'ve been transferred so many times',
+    'this airline is terrible','this is a joke','you people are useless',
+    'i have never been so angry','i cannot believe this',
+    'this is completely wrong'
+  ],
+
+  // ── CUSTOMER CALM DISTRESS (QUIET FRUSTRATION) ───────────────
+  // Detects low-intensity dissatisfaction that agents often miss entirely
+  cst_calm_distress: [
+    'i\'m a bit confused','i am a bit confused',
+    'i just don\'t understand why','i don\'t understand why',
+    'this doesn\'t seem right','this does not seem right',
+    'i expected better','i thought this would be','i assumed',
+    'that\'s not what i was told','that is not what i was told',
+    'that\'s not what i understood','i was under the impression',
+    'that\'s a bit disappointing','that is a bit disappointing',
+    'i\'m not really happy','i am not really happy',
+    'i\'m not satisfied','i am not satisfied',
+    'this is a bit of an issue','this is a problem for me',
+    'i\'m finding this difficult','i find this confusing',
+    'could you explain why','can you explain why',
+    'why does it say','why is it showing',
+    'i\'m not sure this is right','i\'m worried about',
+    'i\'m concerned about','i have a concern about',
+    'this isn\'t ideal','this is not ideal for me',
+    'i was hoping for better','i was expecting',
+    'that seems a bit much','that seems excessive'
+  ],
+
+  // ── CUSTOMER POSITIVE ────────────────────────────────────────
+  cst_pos: [
+    'thank you so much','you have been so helpful','great service',
+    'you\'ve been very helpful','you have been very helpful',
+    'that\'s great news','that is great news','perfect thank you',
+    'that works for me','that\'s exactly what i needed',
+    'i really appreciate it','i appreciate your help',
+    'you\'re amazing','you\'re wonderful','excellent service',
+    'i\'m happy with that','i am happy with that'
+  ],
+
+  // ── PENDING / UNRESOLVED SIGNALS ─────────────────────────────
+  pending: [
+    'i\'ll think about it','i will think about it','let me think',
+    'i\'ll get back to you','i will get back to you',
+    'i need to think','i need more time','i\'m not ready',
+    'i\'m still deciding','let me check with','i need to speak with'
+  ]
 }
 
-const low=t=>(t||'').toLowerCase();
-const has=(t,a)=>a.some(s=>low(t).includes(s));
-const cnt=(t,a)=>a.filter(s=>low(t).includes(s)).length;
-const frac=(t,s,e)=>t.slice(Math.floor(t.length*s),Math.floor(t.length*e));
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const r1=v=>Math.round(v*10)/10;
-const pct=v=>Math.round(v*10);
+// ================================================================
+// UTILITY FUNCTIONS
+// ================================================================
+const low = t => (t || '').toLowerCase()
+const has = (t, a) => a.some(s => low(t).includes(s))
+const cnt = (t, a) => a.filter(s => low(t).includes(s)).length
+const frac = (t, s, e) => t.slice(Math.floor(t.length * s), Math.floor(t.length * e))
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v))
+const r1 = v => Math.round(v * 10) / 10
+const pct = v => Math.round(v * 10)
 
-function splitSpeakers(raw){
-  const lines=raw.split('\n'); let agent=[],customer=[],lastSpeaker=null;
-  lines.forEach(line=>{
-    const l=line.trim();if(!l)return;
-    const ah=l.match(/\d+:\d+\s*[AP]M\s*-\s*([\w.]+@[\w.]+)/i);
-    const ch=/\d+:\d+\s*[AP]M\s*-\s*Customer/i.test(l);
-    if(ah){lastSpeaker='agent';return}
-    if(ch){lastSpeaker='customer';return}
-    if(lastSpeaker==='agent')agent.push(l)
-    else if(lastSpeaker==='customer')customer.push(l)
-  });
-  return{at:agent.join(' '),ct:customer.join(' '),al:agent,cl:customer}
+// ================================================================
+// SPEAKER SPLITTER
+// ================================================================
+function splitSpeakers(raw) {
+  const lines = raw.split('\n')
+  let agent = [], customer = [], lastSpeaker = null
+  lines.forEach(line => {
+    const l = line.trim(); if (!l) return
+    const ah = l.match(/\d+:\d+\s*[AP]M\s*-\s*([\w.]+@[\w.]+)/i)
+    const ch = /\d+:\d+\s*[AP]M\s*-\s*Customer/i.test(l)
+    if (ah) { lastSpeaker = 'agent'; return }
+    if (ch) { lastSpeaker = 'customer'; return }
+    if (lastSpeaker === 'agent') agent.push(l)
+    else if (lastSpeaker === 'customer') customer.push(l)
+  })
+  return { at: agent.join(' '), ct: customer.join(' '), al: agent, cl: customer }
 }
 
-function evaluate(raw,agentName,industry,caseType){
-  const{at,ct,al,cl}=splitSpeakers(raw)
-  const aS=frac(at,0,0.3), aE=frac(at,0.65,1)
-  const defC=cnt(at,S.deflect), uncC=cnt(at,S.uncertain), empC=cnt(at,S.empathy)
-  const ownC=cnt(at,S.own), resC=cnt(at,S.resolution), actC=cnt(at,S.action)
-  
-  let sent=6; let emp=clamp(empC*2.5,0,10); let own=clamp(ownC*1.8,0,10);
-  let res=clamp(resC*3+actC*1.2,0,10); let clar=7; let extra=clamp(cnt(at,S.extra_mile)*1.5,0,10);
-  let comp=clamp(cnt(at,S.compliance)*1.5,0,10);
+// ================================================================
+// EVALUATE ENGINE — v5.2
+// ================================================================
+function evaluate(raw, agentName, industry, caseType) {
+  const { at, ct, al, cl } = splitSpeakers(raw)
+  const aS = frac(at, 0, 0.3), aE = frac(at, 0.65, 1)
 
-  const cats={sentiment:r1(sent),empathy:r1(emp),ownership:r1(own),resolution:r1(res),clarity:r1(clar),extra_mile:r1(extra),compliance:r1(comp)}
-  
-  const W={sentiment:0.25,empathy:0.15,ownership:0.15,resolution:0.20,clarity:0.10,extra_mile:0.10,compliance:0.05}
-  let overall=Math.round(Object.keys(W).reduce((a,k)=>a+cats[k]*W[k],0)*10)
-  
-  let pri=r1(clamp(overall/10,0,10));
-  let verdict=overall>=65?'PASS':overall>=45?'NEEDS_IMPROVEMENT':'FAIL';
-  
-  return{overall,verdict,pri,cats,traj:{start:'neutral',end:'neutral',shift:0},dTypes:[],rf:[],strengths:[],improvements:[],tips:[],tags:[],detected:[]}
+  // --- Count all signals ---
+  const defC   = cnt(at, S.deflect)
+  const uncC   = cnt(at, S.uncertain)
+  const empC   = cnt(at, S.empathy) + cnt(at, S.ack)
+  const ownC   = cnt(at, S.own)
+  const resC   = cnt(at, S.resolution)
+  const actC   = cnt(at, S.action)
+  const satC   = cnt(at, S.sat_check)
+  const clsC   = cnt(at, S.close_pos)
+  const holdOC = cnt(at, S.hold_open)
+  const holdCC = cnt(at, S.hold_close)
+  const escC   = cnt(at, S.escalation)
+  const rudeC  = cnt(at, S.rude)
+
+  // Customer signals
+  const custAngryC      = cnt(ct, S.cst_neg)
+  const custCalmDistC   = cnt(ct, S.cst_calm_distress)
+  const custPosC        = cnt(ct, S.cst_pos)
+  const totalDistress   = custAngryC + custCalmDistC
+
+  // --- SENTIMENT SCORE ---
+  // Base 6, boosted by customer positivity, penalised by unresolved anger
+  let sent = 6
+  sent += clamp(custPosC * 1.2, 0, 3)
+  sent -= clamp(custAngryC * 0.6, 0, 3)
+  sent -= clamp(custCalmDistC * 0.3, 0, 2)
+  sent = clamp(sent, 0, 10)
+
+  // --- EMPATHY SCORE ---
+  // Weighted higher when customer is in distress (calm or overt)
+  let emp = clamp(empC * 2.0, 0, 8)
+  if (totalDistress > 0 && empC === 0) emp = 0        // Zero empathy during distress = hard penalty
+  if (totalDistress > 2 && empC < 2)  emp = clamp(emp - 2, 0, 10) // Under-empathized
+  emp = clamp(emp, 0, 10)
+
+  // --- OWNERSHIP SCORE ---
+  let own = clamp(ownC * 1.8, 0, 8)
+  own -= clamp(defC * 2.5, 0, 5)   // Deflection directly cuts ownership
+  own = clamp(own, 0, 10)
+
+  // --- RESOLUTION SCORE ---
+  // Resolution + action + satisfaction check all contribute
+  let res = clamp(resC * 3.0 + actC * 1.0 + satC * 1.5, 0, 10)
+
+  // --- CLARITY SCORE ---
+  // Penalised by uncertainty language
+  let clar = clamp(7 - uncC * 1.5 - rudeC * 1.0, 0, 10)
+
+  // --- EXTRA MILE SCORE ---
+  let extra = clamp(cnt(at, S.extra_mile) * 1.5, 0, 10)
+
+  // --- COMPLIANCE SCORE ---
+  let comp = clamp(cnt(at, S.compliance) * 1.5, 0, 10)
+
+  // --- HOLD HANDLING BONUS/PENALTY ---
+  // Proper hold: opened AND closed = good. Opened but never closed = penalty on clarity
+  if (holdOC > 0 && holdCC === 0) clar = clamp(clar - 1.5, 0, 10)
+
+  // --- PRI CLOSE BONUS ---
+  // A strong close (sat check + positive ending) adds to resolution
+  if (satC > 0 && clsC > 0) res = clamp(res + 1.5, 0, 10)
+
+  const cats = {
+    sentiment:  r1(sent),
+    empathy:    r1(emp),
+    ownership:  r1(own),
+    resolution: r1(res),
+    clarity:    r1(clar),
+    extra_mile: r1(extra),
+    compliance: r1(comp)
+  }
+
+  const W = { sentiment:0.25, empathy:0.15, ownership:0.15, resolution:0.20, clarity:0.10, extra_mile:0.10, compliance:0.05 }
+  let overall = Math.round(Object.keys(W).reduce((a, k) => a + cats[k] * W[k], 0) * 10)
+
+  let pri = r1(clamp(overall / 10, 0, 10))
+  let verdict = overall >= 65 ? 'PASS' : overall >= 45 ? 'NEEDS_IMPROVEMENT' : 'FAIL'
+
+  // --- DETECTED SIGNALS SUMMARY (for result display) ---
+  const detected = []
+  if (empC > 0)        detected.push({ type:'positive', label:`Empathy detected (${empC} signals)` })
+  if (resC > 0)        detected.push({ type:'positive', label:`Resolution confirmed (${resC} signals)` })
+  if (satC > 0)        detected.push({ type:'positive', label:`Satisfaction check performed` })
+  if (clsC > 0)        detected.push({ type:'positive', label:`Positive call close detected` })
+  if (holdOC > 0 && holdCC > 0) detected.push({ type:'positive', label:`Hold handled correctly (opened & closed)` })
+  if (holdOC > 0 && holdCC === 0) detected.push({ type:'warning', label:`Hold opened but customer never welcomed back` })
+  if (defC > 0)        detected.push({ type:'fail', label:`Deflection language used (${defC} times)` })
+  if (uncC > 2)        detected.push({ type:'warning', label:`Uncertainty language excessive (${uncC} times)` })
+  if (custAngryC > 0)  detected.push({ type:'warning', label:`Customer showed overt anger (${custAngryC} signals)` })
+  if (custCalmDistC > 0) detected.push({ type:'warning', label:`Calm customer distress detected (${custCalmDistC} signals)` })
+  if (totalDistress > 0 && empC === 0) detected.push({ type:'fail', label:`Distressed customer received ZERO empathy` })
+  if (rudeC > 0)       detected.push({ type:'fail', label:`Agent used dismissive/rude language` })
+
+  return { overall, verdict, pri, cats, detected, traj:{start:'neutral',end:'neutral',shift:0}, dTypes:[], rf:[], strengths:[], improvements:[], tips:[], tags:[] }
 }
 
-document.getElementById('transcript').addEventListener('input',function(){document.getElementById('charCount').textContent=this.value.length+' chars'})
+// ================================================================
+// UI
+// ================================================================
+document.getElementById('transcript').addEventListener('input', function () {
+  document.getElementById('charCount').textContent = this.value.length + ' chars'
+})
 
-function runAnalysis(){
-  const raw=document.getElementById('transcript').value.trim()
-  const agentName=document.getElementById('agentName').value.trim()||'Unknown Agent'
-  const callDate=document.getElementById('callDate').value||'Unknown Date'
-  const eb=document.getElementById('errorBox'),btn=document.getElementById('analyzeBtn'),sp=document.getElementById('spinner'),bt=document.getElementById('btnText')
-  if(!raw||raw.length<60){eb.textContent='Please paste a call transcript before analyzing.';eb.style.display='block';return}
-  eb.style.display='none';btn.disabled=true;sp.style.display='block';bt.textContent='Analyzing...'
-  setTimeout(()=>{
-    try{
-      const r=evaluate(raw,agentName,'travel','auto');
-      renderResult(r,agentName,callDate);
-      saveHistory(r,agentName,callDate); // This is now async and uses IndexedDB
+function runAnalysis() {
+  const raw       = document.getElementById('transcript').value.trim()
+  const agentName = document.getElementById('agentName').value.trim() || 'Unknown Agent'
+  const callDate  = document.getElementById('callDate').value || 'Unknown Date'
+  const eb  = document.getElementById('errorBox')
+  const btn = document.getElementById('analyzeBtn')
+  const sp  = document.getElementById('spinner')
+  const bt  = document.getElementById('btnText')
+
+  if (!raw || raw.length < 60) {
+    eb.textContent = 'Please paste a call transcript before analyzing.'
+    eb.style.display = 'block'; return
+  }
+  eb.style.display = 'none'
+  btn.disabled = true; sp.style.display = 'block'; bt.textContent = 'Analyzing...'
+
+  setTimeout(() => {
+    try {
+      const r = evaluate(raw, agentName, 'travel', 'auto')
+      renderResult(r, agentName, callDate)
+      saveHistory(r, agentName, callDate)
+    } catch (e) {
+      console.error(e)
+      eb.textContent = 'Analysis error: ' + e.message
+      eb.style.display = 'block'
     }
-    catch(e){console.error(e);eb.textContent='Analysis error.';eb.style.display='block'}
-    btn.disabled=false;sp.style.display='none';bt.textContent='⚡ Analyze Call'
-  },700)
+    btn.disabled = false; sp.style.display = 'none'; bt.textContent = '⚡ Analyze Call'
+  }, 700)
 }
 
-function renderResult(r,agentName,callDate){
-  const ph=document.getElementById('placeholder'),ra=document.getElementById('resultArea')
-  ra.innerHTML=`<div class="rarea fade-in"><div class="rhead"><div><div class="ragent">${agentName}</div><div class="rdate">${callDate}</div></div></div><div class="score-ring-wrap"><div class="score-meta"><div class="score-verdict">${r.verdict}</div><div class="score-summary">Overall Score: ${r.overall}% | PRI: ${r.pri}/10</div></div></div></div>`
-  ph.style.display='none';ra.style.display='block'
-}
+function renderResult(r, agentName, callDate) {
+  const ph = document.getElementById('placeholder')
+  const ra = document.getElementById('resultArea')
 
-// ---- INDEXED DB STORAGE (REPLACES LOCALSTORAGE) ----
-async function saveHistory(r,agentName,callDate){
-  const h = await localforage.getItem('pri_v5') || [];
-  h.unshift({id:Date.now(),agentName,callDate,verdict:r.verdict,overall:r.overall,pri:r.pri,cats:r.cats,timestamp:new Date().toISOString()});
-  await localforage.setItem('pri_v5', h.slice(0, 5000)); // Saves up to 5,000 records smoothly
-  loadHistory();
-}
+  const verdictClass = r.verdict === 'PASS' ? 'v-pass' : r.verdict === 'FAIL' ? 'v-fail' : 'v-partial'
+  const verdictIcon  = r.verdict === 'PASS' ? '✅' : r.verdict === 'FAIL' ? '❌' : '⚠️'
 
-async function loadHistory(){
-  const h = await localforage.getItem('pri_v5') || [];
-  document.getElementById('historyCount').textContent=h.length+' analyses';
-  const list=document.getElementById('historyList');
-  if(!h.length){list.innerHTML='<div class="hempty">No analysis history yet.</div>';return}
-  
-  list.innerHTML=h.map(item=>`<div class="hcard">
-    <div class="hc-info"><div class="hc-agent">${item.agentName}</div><div class="hc-meta">${item.callDate}</div></div>
-    <div style="text-align:right">
-      <div class="vbadge v-pass" style="font-size:9px;padding:3px 9px">${item.overall}%</div>
+  const detectedHTML = r.detected.length ? `
+    <div class="sec">
+      <div class="sec-head"><span>🔍</span> SIGNAL DETECTION — v5.2</div>
+      <div class="sec-body">
+        ${r.detected.map(d => `
+          <div class="s-item ${d.type==='positive'?'si-green':d.type==='warning'?'si-yellow':'si-blue'}">
+            <div class="si-icon">${d.type==='positive'?'✓':d.type==='warning'?'⚠':'✗'}</div>
+            <div>${d.label}</div>
+          </div>`).join('')}
+      </div>
+    </div>` : ''
+
+  const catRows = Object.entries(r.cats).map(([k,v]) => {
+    const color = v >= 7 ? 'var(--accent3)' : v >= 5 ? 'var(--accent4)' : 'var(--accent2)'
+    return `<div class="cat-card">
+      <div class="cat-header">
+        <div class="cat-name">${k.replace('_',' ')}</div>
+        <div class="cat-pct" style="color:${color}">${v}<span class="cat-weight">/10</span></div>
+      </div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:${v*10}%;background:${color}"></div></div>
+    </div>`
+  }).join('')
+
+  ra.innerHTML = `<div class="rarea fade-in">
+    <div class="rhead">
+      <div>
+        <div class="ragent">${agentName}</div>
+        <div class="rdate">${callDate}</div>
+      </div>
+      <div class="vbadge ${verdictClass}">${verdictIcon} ${r.verdict}</div>
     </div>
-  </div>`).join('');
+
+    <div class="score-ring-wrap">
+      <div class="score-meta">
+        <div class="score-verdict">Overall Score: ${r.overall}%</div>
+        <div class="score-summary">PRI Score: ${r.pri}/10 · ${r.verdict}</div>
+      </div>
+    </div>
+
+    <div class="cat-grid">${catRows}</div>
+
+    ${detectedHTML}
+  </div>`
+
+  ph.style.display = 'none'; ra.style.display = 'block'
 }
 
-async function clearHistory(){
-  if(confirm('Clear all history?')){
-    await localforage.removeItem('pri_v5');
-    loadHistory();
+// ================================================================
+// INDEXED DB STORAGE
+// ================================================================
+async function saveHistory(r, agentName, callDate) {
+  const h = await localforage.getItem('pri_v5') || []
+  h.unshift({
+    id: Date.now(), agentName, callDate,
+    verdict: r.verdict, overall: r.overall, pri: r.pri,
+    cats: r.cats, timestamp: new Date().toISOString()
+  })
+  await localforage.setItem('pri_v5', h.slice(0, 5000))
+  loadHistory()
+}
+
+async function loadHistory() {
+  const h = await localforage.getItem('pri_v5') || []
+  document.getElementById('historyCount').textContent = h.length + ' analyses'
+  const list = document.getElementById('historyList')
+  if (!h.length) { list.innerHTML = '<div class="hempty">No analysis history yet.</div>'; return }
+
+  list.innerHTML = h.map(item => {
+    const vc = item.verdict === 'PASS' ? 'v-pass' : item.verdict === 'FAIL' ? 'v-fail' : 'v-partial'
+    return `<div class="hcard">
+      <div class="hc-info">
+        <div class="hc-agent">${item.agentName}</div>
+        <div class="hc-meta">${item.callDate} · ${item.timestamp ? item.timestamp.slice(0,10) : ''}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="vbadge ${vc}" style="font-size:9px;padding:3px 9px">${item.overall}% · ${item.verdict}</div>
+      </div>
+    </div>`
+  }).join('')
+}
+
+async function clearHistory() {
+  if (confirm('Clear all history?')) {
+    await localforage.removeItem('pri_v5')
+    loadHistory()
   }
 }
 
-// Load data on startup
-loadHistory();
+loadHistory()
 </script>
 </body>
 </html>
