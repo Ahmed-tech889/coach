@@ -151,6 +151,60 @@ textarea::placeholder{color:var(--navy4);}
 .hc-agent{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text1);}
 .hc-meta{font-size:9px;color:var(--text3);margin-top:3px;}
 
+/* ── PRI CRITERIA ───────────────────────── */
+.pri-grid{display:flex;flex-direction:column;gap:6px;}
+.pri-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:9px;font-size:11px;line-height:1.5;}
+.pri-met{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green-text);}
+.pri-miss{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red-text);}
+.pri-partial{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber-text);}
+.pri-icon{font-size:12px;flex-shrink:0;margin-top:1px;}
+.pri-label{font-weight:500;}
+.pri-note{font-size:10px;opacity:0.8;margin-top:2px;}
+
+/* ── DEFECTION PANEL ────────────────────── */
+.defect-box{background:var(--surface);border:2px solid var(--red-border);border-radius:14px;overflow:hidden;}
+.defect-head{background:var(--red-bg);padding:12px 16px;border-bottom:1px solid var(--red-border);display:flex;align-items:center;gap:8px;}
+.defect-title{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--red-text);letter-spacing:0.3px;}
+.defect-body{padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.defect-type{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:var(--red);}
+.defect-reason{font-size:11px;color:var(--text2);line-height:1.7;}
+.defect-quote{background:var(--red-bg);border-left:3px solid var(--red);padding:8px 12px;border-radius:0 6px 6px 0;font-size:10.5px;color:var(--red-text);font-style:italic;line-height:1.6;}
+
+/* ── COACHING PANEL ─────────────────────── */
+.coach-box{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;}
+.coach-head{background:var(--surface2);padding:10px 15px;border-bottom:1px solid var(--border);font-size:9px;font-weight:500;color:var(--text3);letter-spacing:2.5px;text-transform:uppercase;display:flex;align-items:center;gap:7px;}
+.coach-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
+.coach-item{display:flex;flex-direction:column;gap:5px;}
+.coach-issue{font-size:10px;font-weight:600;color:var(--text1);letter-spacing:0.3px;display:flex;align-items:center;gap:6px;}
+.coach-fix{font-size:11px;color:var(--text2);line-height:1.7;}
+.coach-example{background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:7px;padding:8px 11px;font-size:10.5px;color:var(--blue-text);line-height:1.65;}
+.coach-example::before{content:"💬 Try: ";font-weight:600;}
+.coach-divider{height:1px;background:var(--border);margin:2px 0;}
+
+/* ── SENTIMENT ARC ──────────────────────── */
+.arc-box{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;}
+.arc-head{background:var(--surface2);padding:10px 15px;border-bottom:1px solid var(--border);font-size:9px;font-weight:500;color:var(--text3);letter-spacing:2.5px;text-transform:uppercase;display:flex;align-items:center;gap:7px;}
+.arc-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
+.arc-stages{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.arc-stage{border-radius:9px;padding:10px 12px;text-align:center;}
+.arc-stage-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;opacity:0.7;}
+.arc-stage-emoji{font-size:20px;display:block;margin-bottom:4px;}
+.arc-stage-name{font-size:10px;font-weight:600;}
+.arc-arrow{display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text3);padding-top:4px;}
+.arc-stages-row{display:flex;align-items:center;gap:4px;}
+.arc-stages-row .arc-stage{flex:1;}
+.arc-verdict{border-radius:9px;padding:10px 14px;font-size:11px;line-height:1.6;}
+.arc-verdict-positive{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green-text);}
+.arc-verdict-negative{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red-text);}
+.arc-verdict-neutral{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber-text);}
+.arc-verdict-flat{background:var(--blue-bg);border:1px solid var(--blue-border);color:var(--blue-text);}
+
+/* ── PROFILE BADGE ──────────────────────── */
+.profile-box{background:var(--navy);border-radius:12px;padding:13px 16px;display:flex;align-items:flex-start;gap:12px;}
+.profile-icon{font-size:22px;flex-shrink:0;}
+.profile-name{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:#fff;margin-bottom:3px;}
+.profile-desc{font-size:10px;color:var(--navy4);line-height:1.6;}
+
 /* ── ANIMATIONS ─────────────────────────── */
 .fade-in{animation:fi 0.35s ease forwards;}
 @keyframes fi{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
@@ -474,10 +528,75 @@ function splitSpeakers(raw) {
 }
 
 // ================================================================
+// SENTIMENT ARC ENGINE
+// ================================================================
+function scoreSentimentChunk(text) {
+  const t = text.toLowerCase()
+  let score = 0
+  // Positive signals
+  S.cst_pos.forEach(p => { if (t.includes(p)) score += 2 })
+  // Calm distress
+  S.cst_calm_distress.forEach(p => { if (t.includes(p)) score -= 1 })
+  // Overt anger
+  S.cst_neg.forEach(p => { if (t.includes(p)) score -= 2 })
+  // Pending/uncertain
+  S.pending.forEach(p => { if (t.includes(p)) score -= 0.5 })
+  return score
+}
+
+function labelSentiment(score) {
+  if (score >= 2)  return { emoji:'😊', name:'Positive',  cls:'background:var(--green-bg);border:1px solid var(--green-border);color:var(--green-text)' }
+  if (score >= 0)  return { emoji:'😐', name:'Neutral',   cls:'background:var(--blue-bg);border:1px solid var(--blue-border);color:var(--blue-text)' }
+  if (score >= -2) return { emoji:'😟', name:'Uneasy',    cls:'background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber-text)' }
+  return             { emoji:'😡', name:'Frustrated', cls:'background:var(--red-bg);border:1px solid var(--red-border);color:var(--red-text)' }
+}
+
+function buildSentimentArc(cl) {
+  // Split customer lines into thirds
+  const third = Math.max(1, Math.floor(cl.length / 3))
+  const startLines  = cl.slice(0, third).join(' ')
+  const middleLines = cl.slice(third, third * 2).join(' ')
+  const endLines    = cl.slice(third * 2).join(' ')
+
+  const startScore  = scoreSentimentChunk(startLines)
+  const middleScore = scoreSentimentChunk(middleLines)
+  const endScore    = scoreSentimentChunk(endLines)
+
+  const start  = labelSentiment(startScore)
+  const middle = labelSentiment(middleScore)
+  const end    = labelSentiment(endScore)
+
+  // Determine arc direction
+  const delta = endScore - startScore
+  let arcVerdict, arcClass
+  if (delta >= 2) {
+    arcVerdict = '✅ Positive turnaround — the agent successfully improved the customer\'s mood by the end of the call.'
+    arcClass = 'arc-verdict-positive'
+  } else if (delta <= -2) {
+    arcVerdict = '🔴 Sentiment deteriorated — the customer ended the call in a worse state than they started. This is a strong PRI failure signal.'
+    arcClass = 'arc-verdict-negative'
+  } else if (startScore < 0 && endScore < 0) {
+    arcVerdict = '⚠️ Persistent negative sentiment — customer was distressed throughout and never recovered. The agent did not achieve an emotional resolution.'
+    arcClass = 'arc-verdict-neutral'
+  } else if (startScore >= 0 && endScore >= 0 && delta >= 0) {
+    arcVerdict = '✅ Stable positive sentiment — customer remained calm and positive throughout. Agent maintained rapport well.'
+    arcClass = 'arc-verdict-positive'
+  } else if (Math.abs(delta) < 2 && startScore >= 0) {
+    arcVerdict = '🔵 Flat neutral arc — no strong emotional signals in either direction. Call was handled functionally but lacked warmth.'
+    arcClass = 'arc-verdict-flat'
+  } else {
+    arcVerdict = '⚠️ Mixed sentiment arc — customer mood fluctuated. Agent partially managed the emotional journey but didn\'t fully land the resolution.'
+    arcClass = 'arc-verdict-neutral'
+  }
+
+  return { start, middle, end, arcVerdict, arcClass, startScore, middleScore, endScore, delta }
+}
+
+// ================================================================
 // EVALUATE ENGINE
 // ================================================================
 function evaluate(raw, agentName, industry, caseType) {
-  const { at, ct } = splitSpeakers(raw)
+  const { at, ct, cl } = splitSpeakers(raw)
 
   const defC    = cnt(at, S.deflect)
   const uncC    = cnt(at, S.uncertain)
@@ -496,8 +615,11 @@ function evaluate(raw, agentName, industry, caseType) {
   const custPosC      = cnt(ct, S.cst_pos)
   const totalDistress = custAngryC + custCalmDistC
 
-  // Scores
-  let sent  = clamp(6 + custPosC * 1.2 - custAngryC * 0.6 - custCalmDistC * 0.3, 0, 10)
+  // Sentiment arc — tracks customer mood journey start → middle → end
+  const sentArc = buildSentimentArc(cl)
+
+  // Scores — sentiment now weighted toward end-of-call mood (what matters for PRI)
+  let sent  = clamp(6 + custPosC * 1.2 - custAngryC * 0.6 - custCalmDistC * 0.3 + sentArc.delta * 0.5, 0, 10)
   let emp   = clamp(empC * 2.0, 0, 8)
   if (totalDistress > 0 && empC === 0) emp = 0
   if (totalDistress > 2 && empC < 2)  emp = clamp(emp - 2, 0, 10)
@@ -538,9 +660,240 @@ function evaluate(raw, agentName, industry, caseType) {
   if (custCalmDistC > 0) detected.push({ type:'info', label:`Calm distress detected — ${custCalmDistC} signal${custCalmDistC>1?'s':''}` })
   if (totalDistress > 0 && empC === 0) detected.push({ type:'fail', label:`Distressed customer received zero empathy` })
   if (rudeC > 0)       detected.push({ type:'fail',  label:`Dismissive language detected` })
+  if (sentArc.delta >= 2)  detected.push({ type:'pass', label:`Sentiment turnaround — customer mood improved from ${sentArc.start.name} → ${sentArc.end.name}` })
+  if (sentArc.delta <= -2) detected.push({ type:'fail', label:`Sentiment deteriorated — customer mood dropped from ${sentArc.start.name} → ${sentArc.end.name}` })
+  if (sentArc.startScore < 0 && sentArc.endScore < 0) detected.push({ type:'warn', label:`Persistent distress — customer remained ${sentArc.end.name} throughout the call` })
   if (!detected.length) detected.push({ type:'info', label:`No strong signals detected — transcript may need clearer speaker labels` })
 
-  return { overall, verdict, pri, cats, detected }
+  const counts = { empC, ownC, resC, actC, satC, clsC, holdOC, holdCC, defC, uncC, rudeC, custAngryC, custCalmDistC }
+  const priResult    = evalPRI(at, ct, counts)
+  const defection    = verdict !== 'PASS' ? classifyDefection(at, ct, counts, sentArc) : null
+  const agentProfile = profileAgent(counts, priResult)
+
+  return { overall, verdict, pri, cats, detected, priResult, defection, agentProfile, sentArc }
+}
+
+// ================================================================
+// PRI CRITERIA EVALUATOR — 10 criteria
+// ================================================================
+function evalPRI(at, ct, counts) {
+  const { empC, ownC, resC, actC, satC, clsC, holdOC, holdCC, defC, uncC, rudeC, custAngryC, custCalmDistC } = counts
+  const totalDistress = custAngryC + custCalmDistC
+  const criteria = [
+    {
+      id: 'greeting',
+      label: 'Professional Greeting',
+      met: has(at, ['thank you for calling','thanks for calling','thank you for contacting','good morning','good afternoon','good evening','my name is','this is ']) ,
+      note: 'Agent opened with a proper greeting and identified themselves.'
+    },
+    {
+      id: 'verification',
+      label: 'Customer Verification',
+      met: has(at, S.compliance),
+      note: 'Agent verified customer identity for security.'
+    },
+    {
+      id: 'acknowledgement',
+      label: 'Issue Acknowledgement',
+      met: empC >= 1,
+      note: 'Agent acknowledged the customer\'s concern with empathy or understanding.'
+    },
+    {
+      id: 'ownership',
+      label: 'Ownership & Initiative',
+      met: ownC >= 1 && defC === 0,
+      partial: ownC >= 1 && defC > 0,
+      note: defC > 0 ? 'Agent showed some ownership but also deflected responsibility.' : 'Agent took ownership of the issue without deflecting.'
+    },
+    {
+      id: 'empathy',
+      label: 'Empathy Under Distress',
+      met: totalDistress === 0 || (totalDistress > 0 && empC >= 2),
+      partial: totalDistress > 0 && empC === 1,
+      note: totalDistress === 0 ? 'No distress detected — criteria not triggered.' : empC === 0 ? 'Customer showed distress but agent did not respond with empathy.' : 'Agent responded empathetically to customer distress.'
+    },
+    {
+      id: 'hold',
+      label: 'Hold Protocol',
+      met: holdOC === 0 || (holdOC > 0 && holdCC > 0),
+      partial: false,
+      note: holdOC === 0 ? 'No hold used.' : holdCC === 0 ? 'Agent placed customer on hold but never welcomed them back.' : 'Hold was opened and closed correctly.'
+    },
+    {
+      id: 'action',
+      label: 'Concrete Action Taken',
+      met: actC >= 1 || resC >= 1,
+      note: 'Agent performed or confirmed a tangible action on the account/booking.'
+    },
+    {
+      id: 'resolution',
+      label: 'Resolution Confirmed',
+      met: resC >= 1,
+      note: 'Agent explicitly confirmed the issue was resolved before closing.'
+    },
+    {
+      id: 'satcheck',
+      label: 'Satisfaction Check',
+      met: satC >= 1,
+      note: 'Agent checked that the customer was satisfied before ending the call.'
+    },
+    {
+      id: 'close',
+      label: 'Positive Call Close',
+      met: clsC >= 1,
+      note: 'Agent closed warmly — wished the customer well or thanked them.'
+    }
+  ]
+  const metCount = criteria.filter(c => c.met && !c.partial).length
+  return { criteria, metCount }
+}
+
+// ================================================================
+// DEFECTION CLASSIFIER — 14 defection types
+// ================================================================
+function classifyDefection(at, ct, counts, sentArc) {
+  const { empC, ownC, resC, actC, satC, clsC, defC, uncC, rudeC, custAngryC, custCalmDistC, holdOC, holdCC } = counts
+  const totalDistress = custAngryC + custCalmDistC
+
+  // Sentiment deterioration is the strongest override
+  if (sentArc && sentArc.delta <= -3)
+    return {
+      type: 'Sentiment Collapse',
+      icon: '📉',
+      reason: `The customer's mood actively worsened during the call — starting ${sentArc.start.name} and ending ${sentArc.end.name}. The agent's handling made things worse, not better. This is one of the clearest PRI failure signals.`,
+      coaching: [
+        { issue: 'Customer left the call more frustrated than they arrived', fix: 'When you sense the mood dropping, pause the transaction and re-acknowledge the customer\'s frustration before continuing.', example: 'I want to stop for a second — I can hear this has been really stressful and I genuinely want to make sure we fix this for you today.' },
+        { issue: 'No emotional recovery attempt', fix: 'Use sentiment-lifting language at the midpoint and close to rebuild trust.', example: 'I really appreciate your patience with this — and I\'m going to make sure you leave this call with everything resolved.' }
+      ]
+    }
+
+  // Priority-ordered defection checks
+  if (defC >= 2)
+    return {
+      type: 'Chronic Deflection',
+      icon: '🚫',
+      reason: 'The agent repeatedly pushed responsibility away from themselves — directing the customer to the airline, another department, or another process instead of owning the issue.',
+      coaching: [
+        { issue: 'Deflection language used multiple times', fix: 'Instead of telling the customer where else to go, lead with what YOU can do right now.', example: 'What I can do for you right now is check on this directly and update you before the call ends.' },
+        { issue: 'Ownership missing', fix: 'Even if the resolution requires a third party, the agent must own the communication loop.', example: 'I will personally follow up with the airline and call you back within 24 hours with an update.' }
+      ]
+    }
+
+  if (totalDistress > 0 && empC === 0)
+    return {
+      type: 'Empathy Void',
+      icon: '💔',
+      reason: 'The customer expressed frustration or distress, but the agent never acknowledged their feelings. The call felt transactional and cold — the customer likely felt unheard.',
+      coaching: [
+        { issue: 'Zero empathy to a distressed customer', fix: 'Always acknowledge the emotion before jumping to the solution.', example: 'I completely understand how frustrating this must be — let me make sure we get this sorted for you right now.' },
+        { issue: 'Customer emotion ignored', fix: 'Mirror what the customer is feeling to build trust before solving.', example: 'I can see why you\'re upset — this is not the experience we want you to have and I\'m going to fix this.' }
+      ]
+    }
+
+  if (resC === 0 && actC === 0)
+    return {
+      type: 'No Resolution Delivered',
+      icon: '❌',
+      reason: 'The call ended without the agent confirming any resolution or action taken. The customer\'s issue was discussed but never officially closed or confirmed as handled.',
+      coaching: [
+        { issue: 'No resolution statement made', fix: 'Before closing, always summarize what was done and confirm it is resolved.', example: 'So what I\'ve done for you today is [action]. Your issue is now fully resolved and you should see this reflected within 24 hours.' },
+        { issue: 'No action confirmed', fix: 'Even if the action is small, name it explicitly.', example: 'I\'ve gone ahead and noted this on your file and escalated it to our specialist team — reference number is [X].' }
+      ]
+    }
+
+  if (satC === 0 && clsC === 0)
+    return {
+      type: 'Abrupt Close — No Satisfaction Check',
+      icon: '📵',
+      reason: 'The agent ended the call without checking if the customer was satisfied or if anything else was needed. The call closed abruptly, leaving the customer without a proper farewell.',
+      coaching: [
+        { issue: 'No satisfaction check before close', fix: 'Always ask if the customer is happy before wrapping up.', example: 'Before I let you go — have I fully resolved everything for you today? Is there anything else I can help with?' },
+        { issue: 'No warm close', fix: 'End every call on a positive, human note.', example: 'It was my pleasure assisting you today. Have a great flight and enjoy your trip!' }
+      ]
+    }
+
+  if (defC >= 1 && ownC === 0)
+    return {
+      type: 'Deflection Without Ownership',
+      icon: '↩️',
+      reason: 'The agent deflected the issue to another party or department without taking any personal ownership of the outcome or the communication.',
+      coaching: [
+        { issue: 'Deflected without owning the follow-up', fix: 'If you must involve another party, still own the customer\'s experience.', example: 'I\'m going to loop in our specialist team, but I will stay on this and make sure it gets resolved for you.' }
+      ]
+    }
+
+  if (holdOC > 0 && holdCC === 0)
+    return {
+      type: 'Hold Without Welcome-Back',
+      icon: '⏸️',
+      reason: 'The agent placed the customer on hold but never officially welcomed them back. This creates a jarring experience and signals poor call control.',
+      coaching: [
+        { issue: 'Customer not welcomed back after hold', fix: 'Always acknowledge the customer when returning from hold.', example: 'Thank you so much for your patience — I\'m back and I have the information for you.' }
+      ]
+    }
+
+  if (uncC > 3)
+    return {
+      type: 'Confidence Failure',
+      icon: '❓',
+      reason: 'The agent used excessive uncertain or hedging language throughout the call, undermining the customer\'s trust and confidence in the solution being offered.',
+      coaching: [
+        { issue: 'Too much hedging language', fix: 'Replace uncertainty with confident, clear statements. If you don\'t know, own it — then find out.', example: 'Let me check that right now and give you a definitive answer — I don\'t want to guess.' }
+      ]
+    }
+
+  if (rudeC > 0)
+    return {
+      type: 'Dismissive Tone',
+      icon: '⚠️',
+      reason: 'The agent used language that could be perceived as dismissive, condescending, or impatient — damaging rapport and risking escalation.',
+      coaching: [
+        { issue: 'Dismissive phrasing detected', fix: 'Reframe every statement to show patience and respect.', example: 'I completely understand — let me walk you through this one more time to make sure we\'re on the same page.' }
+      ]
+    }
+
+  if (ownC === 0)
+    return {
+      type: 'Passive Handling',
+      icon: '😐',
+      reason: 'The agent never used any language that demonstrated initiative or proactive ownership. The call felt passive — the customer had to drive the interaction.',
+      coaching: [
+        { issue: 'No ownership language used', fix: 'Lead the call with action-oriented phrases that show the customer you\'re in charge of solving their problem.', example: 'Let me pull up your booking right now and I\'ll take care of this for you.' }
+      ]
+    }
+
+  // If nothing critical — soft fail
+  return {
+    type: 'Incomplete PRI Achievement',
+    icon: '📋',
+    reason: 'The call lacked enough positive signals across empathy, resolution, and closing to achieve PRI. No single critical failure, but several criteria were not fully met.',
+    coaching: [
+      { issue: 'Insufficient PRI signal coverage', fix: 'Ensure each call hits the key moments: acknowledge, own, resolve, check, close.', example: 'Before we wrap up — I\'ve gone ahead and [action]. Is there anything else I can help you with today? Have a wonderful day!' }
+    ]
+  }
+}
+
+// ================================================================
+// AGENT FAILURE PROFILER
+// ================================================================
+function profileAgent(counts, priResult) {
+  const { empC, ownC, resC, satC, clsC, defC, uncC, rudeC } = counts
+  const missed = priResult.criteria.filter(c => !c.met).map(c => c.id)
+
+  if (defC >= 2 && ownC <= 1)
+    return { icon:'🧱', name:'The Wall', desc:'Consistently deflects ownership. Pushes issues to airlines, supervisors, or other teams rather than resolving personally. Needs ownership scripting drills.' }
+  if (empC === 0 && (counts.custAngryC > 0 || counts.custCalmDistC > 0))
+    return { icon:'🤖', name:'The Robot', desc:'Technically processes the call but shows no emotional awareness. Misses empathy moments entirely. Needs active listening and mirroring training.' }
+  if (resC === 0 && satC === 0 && clsC === 0)
+    return { icon:'💨', name:'The Vanisher', desc:'Drops the call before confirming resolution or checking satisfaction. Call simply ends. Needs a strict close-script checklist.' }
+  if (uncC > 3)
+    return { icon:'🌊', name:'The Drifter', desc:'Speaks with excessive uncertainty and hedging. Customer loses confidence in the solution. Needs product knowledge reinforcement and confidence coaching.' }
+  if (rudeC > 0)
+    return { icon:'🌋', name:'The Eruption Risk', desc:'Uses dismissive or impatient language under pressure. Risk of escalation. Needs de-escalation training and stress management techniques.' }
+  if (missed.includes('satcheck') && missed.includes('close'))
+    return { icon:'🏃', name:'The Rusher', desc:'Hurries through calls and skips the closing ritual. Scores well on resolution but loses PRI on the finish line. Needs close-script habit building.' }
+
+  return { icon:'📈', name:'Near-Miss Agent', desc:'Covers most of the call well but consistently drops one or two PRI criteria. Targeted coaching on the specific missed criteria will quickly improve scores.' }
 }
 
 // ================================================================
@@ -607,10 +960,10 @@ function renderResult(r, agentName, callDate) {
   }).join('')
 
   const sigTypeMap = {
-    pass: { cls:'sig-pass', dot:'var(--green)', icon:'✓' },
-    warn: { cls:'sig-warn', dot:'var(--amber)', icon:'⚠' },
-    fail: { cls:'sig-fail', dot:'var(--red)',   icon:'✗' },
-    info: { cls:'sig-info', dot:'var(--blue)',  icon:'·' }
+    pass: { cls:'sig-pass', dot:'var(--green)' },
+    warn: { cls:'sig-warn', dot:'var(--amber)' },
+    fail: { cls:'sig-fail', dot:'var(--red)'   },
+    info: { cls:'sig-info', dot:'var(--blue)'  }
   }
   const sigHTML = r.detected.map(d => {
     const t = sigTypeMap[d.type]
@@ -619,6 +972,97 @@ function renderResult(r, agentName, callDate) {
       <div>${d.label}</div>
     </div>`
   }).join('')
+
+  // Sentiment Arc panel
+  const sa = r.sentArc
+  const arcHTML = `
+    <div class="arc-box">
+      <div class="arc-head">📈 Customer Sentiment Arc</div>
+      <div class="arc-body">
+        <div class="arc-stages-row">
+          <div class="arc-stage" style="${sa.start.cls}">
+            <div class="arc-stage-label">Start</div>
+            <span class="arc-stage-emoji">${sa.start.emoji}</span>
+            <div class="arc-stage-name">${sa.start.name}</div>
+          </div>
+          <div class="arc-arrow">→</div>
+          <div class="arc-stage" style="${sa.middle.cls}">
+            <div class="arc-stage-label">Middle</div>
+            <span class="arc-stage-emoji">${sa.middle.emoji}</span>
+            <div class="arc-stage-name">${sa.middle.name}</div>
+          </div>
+          <div class="arc-arrow">→</div>
+          <div class="arc-stage" style="${sa.end.cls}">
+            <div class="arc-stage-label">End</div>
+            <span class="arc-stage-emoji">${sa.end.emoji}</span>
+            <div class="arc-stage-name">${sa.end.name}</div>
+          </div>
+        </div>
+        <div class="arc-verdict ${sa.arcClass}">${sa.arcVerdict}</div>
+      </div>
+    </div>`
+
+  // PRI Criteria breakdown
+  const priHTML = r.priResult.criteria.map(c => {
+    const cls = c.met ? 'pri-met' : (c.partial ? 'pri-partial' : 'pri-miss')
+    const icon = c.met ? '✓' : (c.partial ? '~' : '✗')
+    return `<div class="pri-item ${cls}">
+      <div class="pri-icon">${icon}</div>
+      <div>
+        <div class="pri-label">${c.label}</div>
+        <div class="pri-note">${c.note}</div>
+      </div>
+    </div>`
+  }).join('')
+
+  // Defection diagnosis
+  const defectHTML = r.defection ? `
+    <div class="defect-box">
+      <div class="defect-head">
+        <span style="font-size:16px">${r.defection.icon}</span>
+        <div>
+          <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red-text);opacity:0.7;margin-bottom:2px">PRI Failure Type</div>
+          <div class="defect-title">${r.defection.type}</div>
+        </div>
+      </div>
+      <div class="defect-body">
+        <div class="defect-reason">${r.defection.reason}</div>
+      </div>
+    </div>` : `
+    <div style="background:var(--green-bg);border:1.5px solid var(--green-border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:20px">🏆</span>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--green-text)">PRI Achieved</div>
+        <div style="font-size:10px;color:var(--green-text);opacity:0.8;margin-top:2px">This call met the threshold for Positive Resolution Interaction. All major criteria were covered.</div>
+      </div>
+    </div>`
+
+  // Coaching tips
+  const coachHTML = r.defection && r.defection.coaching.length ? `
+    <div class="coach-box">
+      <div class="coach-head">🎯 Coaching Recommendations</div>
+      <div class="coach-body">
+        ${r.defection.coaching.map((c, i) => `
+          ${i > 0 ? '<div class="coach-divider"></div>' : ''}
+          <div class="coach-item">
+            <div class="coach-issue">⚡ ${c.issue}</div>
+            <div class="coach-fix">${c.fix}</div>
+            <div class="coach-example">${c.example}</div>
+          </div>`).join('')}
+      </div>
+    </div>` : ''
+
+  // Agent profile
+  const p = r.agentProfile
+  const profileHTML = `
+    <div class="profile-box">
+      <div class="profile-icon">${p.icon}</div>
+      <div>
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--navy4);margin-bottom:3px">Agent Failure Profile</div>
+        <div class="profile-name">${p.name}</div>
+        <div class="profile-desc">${p.desc}</div>
+      </div>
+    </div>`
 
   ra.innerHTML = `<div class="rarea fade-in">
     <div class="rhead">
@@ -633,7 +1077,7 @@ function renderResult(r, agentName, callDate) {
       <div class="score-top">
         <div>
           <div class="score-num">${r.overall}%</div>
-          <div class="score-sub">Overall Score · PRI ${r.pri} / 10</div>
+          <div class="score-sub">Overall Score · PRI ${r.pri} / 10 · ${r.priResult.metCount}/10 criteria met</div>
         </div>
         <div>${targetLabel}</div>
       </div>
@@ -642,10 +1086,24 @@ function renderResult(r, agentName, callDate) {
 
     <div class="cat-grid">${catHTML}</div>
 
+    ${arcHTML}
+
+    ${defectHTML}
+
+    ${coachHTML}
+
     <div class="sigs">
       <div class="sigs-head">🔍 Signal Detection</div>
       ${sigHTML}
     </div>
+
+    <div class="coach-box">
+      <div class="coach-head">📋 PRI Criteria Breakdown — ${r.priResult.metCount}/10 Met</div>
+      <div style="padding:12px 14px;display:flex;flex-direction:column;gap:6px;">${priHTML}</div>
+    </div>
+
+    ${profileHTML}
+
   </div>`
 
   ph.style.display = 'none'
