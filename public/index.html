@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRI Insight v8.0</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#f0f4f8;
+  --navy2:#e8edf4;
+  --navy3:#dce4ed;
+  --navy4:#64748b;
+  --accent:#4f7ef7;
+  --accent2:#7ba4f9;
+  --bg:#fafbfc;
+  --surface:#ffffff;
+  --surface2:#f4f7fb;
+  --border:#dce4ed;
+  --border2:#c8d4e0;
+  --text1:#1e293b;
+  --text2:#334155;
+  --text3:#64748b;
+  --green:#059669;
+  --green-bg:#f0fdf4;
+  --green-border:#6ee7b7;
+  --green-text:#065f46;
+  --amber:#d97706;
+  --amber-bg:#fffbeb;
+  --amber-border:#fcd34d;
+  --amber-text:#92400e;
+  --red:#dc2626;
+  --red-bg:#fef2f2;
+  --red-border:#fca5a5;
+  --red-text:#991b1b;
+  --blue:#2563eb;
+  --blue-bg:#eff6ff;
+  --blue-border:#93c5fd;
+  --blue-text:#1e3a8a;
+  --purple:#6366f1;
+  --purple-bg:rgba(99,102,241,0.07);
+  --purple-border:rgba(99,102,241,0.25);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text1);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;}
+
+/* ── HEADER ─────────────────────────────── */
+.header{background:var(--navy);border-bottom:1px solid var(--navy3);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:11px;}
+.logo-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-name{font-family:'IBM Plex Sans',sans-serif;font-weight:800;font-size:15px;color:#1e293b;letter-spacing:-0.3px;}
+.logo-sub{font-size:9px;color:#94a3b8;letter-spacing:2.5px;text-transform:uppercase;margin-top:2px;}
+.hright{display:flex;align-items:center;gap:8px;}
+.nav-btn{background:rgba(79,126,247,0.08);border:1px solid rgba(79,126,247,0.2);color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:5px 13px;border-radius:20px;cursor:pointer;transition:all 0.2s;}
+.nav-btn:hover{background:rgba(79,126,247,0.15);border-color:rgba(79,126,247,0.4);}
+.nav-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.vtag{font-size:9px;color:#43e97b;border:1px solid rgba(67,233,123,0.3);background:rgba(67,233,123,0.08);padding:3px 10px;border-radius:20px;letter-spacing:1px;}
+.tab-content{display:none;}.tab-content.active{display:block;}
+
+/* ── LAYOUT ─────────────────────────────── */
+.layout{display:grid;grid-template-columns:400px 1fr;height:calc(100vh - 62px);}
+.left{background:var(--navy);border-right:1px solid var(--navy3);padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;}
+.right{overflow-y:auto;background:var(--bg);}
+
+/* ── FORM ELEMENTS ──────────────────────── */
+.fl{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#475569;margin-bottom:5px;font-weight:600;}
+.irow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+input[type=text],input[type=date],input[type=password],select,textarea{width:100%;background:#ffffff;border:1.5px solid #dce4ed;color:#1e293b;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 11px;border-radius:8px;outline:none;transition:border-color 0.2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent2);}
+input::placeholder,textarea::placeholder{color:var(--navy4);}
+.twrap{display:flex;flex-direction:column;gap:5px;}
+.twrap-grow{flex:1;display:flex;flex-direction:column;gap:5px;min-height:0;}
+textarea{resize:none;line-height:1.8;color:#334155;}
+.ta-transcript{min-height:160px;}
+.ta-mila{min-height:100px;}
+.crow{display:flex;justify-content:space-between;align-items:center;}
+.cc{font-size:9px;color:#94a3b8;}
+.section-divider{height:1px;background:#dce4ed;margin:2px 0;}
+
+/* ── ANALYZE BUTTON ─────────────────────── */
+.abtn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:13px;padding:13px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s,transform 0.1s;width:100%;letter-spacing:0.2px;flex-shrink:0;}
+.abtn:hover{opacity:0.88;transform:translateY(-1px);}
+.abtn:active{transform:translateY(0);}
+.abtn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.spin{width:14px;height:14px;border:2px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;animation:sp 0.7s linear infinite;display:none;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* ── ERROR BOX ──────────────────────────── */
+.ebox{background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);border-radius:7px;padding:9px 12px;font-size:10px;color:#fca5a5;display:none;}
+
+/* ── PLACEHOLDER ────────────────────────── */
+.ph{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text3);padding:40px;text-align:center;}
+.ph-icon{font-size:48px;opacity:0.15;}
+.ph-title{font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:14px;color:var(--text2);}
+.ph-text{font-size:11px;line-height:1.75;max-width:300px;color:var(--text3);}
+
+/* ── RESULT AREA ────────────────────────── */
+.rarea{padding:24px;display:flex;flex-direction:column;gap:16px;}
+.rhead{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:16px;border-bottom:2px solid var(--border);}
+.ragent{font-family:'IBM Plex Sans',sans-serif;font-weight:800;font-size:17px;color:var(--text1);}
+.rdate{font-size:10px;color:var(--text3);margin-top:3px;}
+
+/* ── VERDICT BADGES ─────────────────────── */
+.vbadge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:5px 14px;border-radius:20px;font-weight:500;white-space:nowrap;font-family:'IBM Plex Sans',sans-serif;}
+.v-pass{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border);}
+.v-fail{background:var(--red-bg);color:var(--red-text);border:1px solid var(--red-border);}
+
+/* ── SCORE BANNER ───────────────────────── */
+.score-banner{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:20px 22px;display:flex;align-items:center;gap:24px;}
+.score-pri{display:flex;flex-direction:column;align-items:center;gap:4px;padding-right:24px;border-right:1.5px solid var(--border);}
+.score-pri-label{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3);}
+.score-pri-badge{font-family:'IBM Plex Sans',sans-serif;font-weight:800;font-size:18px;}
+.score-qa{flex:1;}
+.score-qa-num{font-family:'IBM Plex Sans',sans-serif;font-weight:800;font-size:38px;color:var(--accent);line-height:1;}
+.score-qa-sub{font-size:10px;color:var(--text3);margin-top:4px;}
+.bar-track{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid var(--border);margin-top:10px;}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width 1s ease;}
+
+/* ── ATTRIBUTE GRID ─────────────────────── */
+.attr-section{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;}
+.attr-section-head{background:var(--surface2);padding:10px 15px;border-bottom:1px solid var(--border);font-size:9px;font-weight:500;color:var(--text3);letter-spacing:2.5px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;}
+.attr-section-badge{font-size:9px;padding:2px 9px;border-radius:20px;font-weight:600;}
+.cat-a-badge{background:rgba(220,38,38,0.1);color:var(--red-text);border:1px solid var(--red-border);}
+.cat-b-badge{background:var(--blue-bg);color:var(--blue-text);border:1px solid var(--blue-border);}
+.attr-item{display:flex;align-items:flex-start;gap:12px;padding:12px 15px;border-bottom:1px solid var(--border);}
+.attr-item:last-child{border-bottom:none;}
+.attr-item.na{opacity:0.45;}
+.attr-icon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px;font-weight:700;}
+.attr-pass .attr-icon{background:var(--green-bg);color:var(--green-text);}
+.attr-fail .attr-icon{background:var(--red-bg);color:var(--red-text);}
+.attr-na .attr-icon{background:var(--bg);color:var(--text3);}
+.attr-num{font-size:8px;letter-spacing:1.5px;color:var(--text3);margin-bottom:2px;}
+.attr-label{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:11px;color:var(--text1);}
+.attr-note{font-size:10px;color:var(--text2);margin-top:3px;line-height:1.6;}
+.attr-na-tag{font-size:9px;color:var(--text3);background:var(--bg);border:1px solid var(--border);padding:1px 8px;border-radius:10px;display:inline-block;margin-top:3px;}
+
+/* ── MILA ANALYSIS ──────────────────────── */
+.mila-box{background:var(--surface);border:1.5px solid var(--purple-border);border-radius:14px;overflow:hidden;}
+.mila-head{background:var(--purple-bg);padding:10px 15px;border-bottom:1px solid var(--purple-border);font-size:9px;font-weight:500;color:var(--purple);letter-spacing:2.5px;text-transform:uppercase;display:flex;align-items:center;gap:7px;}
+.mila-body{padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.mila-row{display:flex;flex-direction:column;gap:4px;}
+.mila-row-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);}
+.mila-row-val{font-size:11px;color:var(--text2);line-height:1.65;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 11px;}
+.mila-disconnect{background:var(--red-bg);border:1px solid var(--red-border);border-radius:7px;padding:9px 12px;font-size:11px;color:var(--red-text);line-height:1.65;}
+.mila-ok{background:var(--green-bg);border:1px solid var(--green-border);border-radius:7px;padding:9px 12px;font-size:11px;color:var(--green-text);line-height:1.65;}
+
+/* ── COACHING SUMMARY ───────────────────── */
+.coach-box{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;}
+.coach-head{background:var(--surface2);padding:10px 15px;border-bottom:1px solid var(--border);font-size:9px;font-weight:500;color:var(--text3);letter-spacing:2.5px;text-transform:uppercase;display:flex;align-items:center;gap:7px;}
+.coach-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
+.coach-row{display:flex;flex-direction:column;gap:4px;}
+.coach-row-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);}
+.coach-row-val{font-size:11px;color:var(--text2);line-height:1.7;}
+.coach-script{background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:7px;padding:10px 13px;font-size:10.5px;color:var(--blue-text);line-height:1.7;}
+.coach-script::before{content:"💬 Script: ";font-weight:700;}
+.coach-divider{height:1px;background:var(--border);margin:2px 0;}
+.positive-box{background:var(--green-bg);border:1.5px solid var(--green-border);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:10px;}
+
+/* ── AI BADGE ───────────────────────────── */
+.ai-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:8px;letter-spacing:1.5px;padding:2px 7px;border-radius:20px;font-weight:600;}
+.ai-pulse{width:5px;height:5px;background:#a5f3fc;border-radius:50%;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
+
+/* ── AI THINKING ────────────────────────── */
+.ai-thinking{background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08));border:1.5px solid rgba(99,102,241,0.25);border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:200px;text-align:center;}
+.ai-thinking-dots{display:flex;gap:6px;}
+.ai-thinking-dots span{width:8px;height:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:50%;animation:bounce 1.2s ease-in-out infinite;}
+.ai-thinking-dots span:nth-child(2){animation-delay:0.2s;}
+.ai-thinking-dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-8px);}}
+.ai-thinking-label{font-size:11px;color:rgba(99,102,241,0.9);letter-spacing:1px;}
+
+/* ── HISTORY ────────────────────────────── */
+.hwrap{max-width:960px;margin:0 auto;padding:28px 24px;}
+.ptitle{font-family:'IBM Plex Sans',sans-serif;font-weight:800;font-size:18px;color:var(--text1);margin-bottom:4px;}
+.psub{font-size:10px;color:var(--text3);margin-bottom:20px;}
+.hcontrols{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.hcount{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+.cbtn{background:none;border:1px solid rgba(220,38,38,0.3);color:var(--red);font-family:'IBM Plex Mono',monospace;font-size:9px;padding:5px 13px;border-radius:6px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
+.cbtn:hover{background:var(--red-bg);}
+.hempty{text-align:center;padding:70px;color:var(--text3);font-size:11px;}
+.hcard{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:15px 18px;margin-bottom:8px;display:flex;align-items:center;gap:14px;transition:border-color 0.2s;}
+.hcard:hover{border-color:var(--accent2);}
+.hc-info{flex:1;}
+.hc-agent{font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:13px;color:var(--text1);}
+.hc-meta{font-size:9px;color:var(--text3);margin-top:3px;}
+
+/* ── ANIMATIONS ─────────────────────────── */
+.fade-in{animation:fi 0.35s ease forwards;}
+@keyframes fi{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:900px){.layout{grid-template-columns:1fr;height:auto;}.left{border-right:none;border-bottom:1px solid var(--navy3);}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3L4.5 6.5V12c0 4 3.5 7 7.5 8.5C16 19 19.5 16 19.5 12V6.5L12 3Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
+        <polyline points="9,12 11.5,14.5 15.5,10" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-name">PRI Insight</div>
+    </div>
+  </div>
+  <div class="hright">
+    <button class="nav-btn active" onclick="switchTab('analyzer',this)">Analyzer</button>
+    <button class="nav-btn" onclick="switchTab('history',this)">History</button>
+    <div class="vtag">v8.0 · PRI Insight</div>
+  </div>
+</div>
+
+<div id="tab-analyzer" class="tab-content active">
+  <div class="layout">
+    <div class="left">
+      <div>
+        <div class="irow">
+          <div><div class="fl">Agent Name</div><input type="text" id="agentName" placeholder="e.g. Momen Faramawy"></div>
+          <div><div class="fl">Call Date</div><input type="date" id="callDate"></div>
+        </div>
+        <div class="irow" style="margin-top:8px;">
+          <div><div class="fl">Call ID</div><input type="text" id="callId" placeholder="e.g. 20250419-001"></div>
+          <div><div class="fl">Chat ID</div><input type="text" id="chatId" placeholder="e.g. CH-98765"></div>
+        </div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="twrap">
+        <div class="crow">
+          <div class="fl">Call Transcript</div>
+          <div class="cc" id="charCount">0 chars</div>
+        </div>
+        <textarea class="ta-transcript" id="transcript" placeholder="Paste the full call transcript here — agent + customer dialogue..."></textarea>
+      </div>
+      <div class="twrap">
+        <div class="crow">
+          <div class="fl">Mila Chat Log</div>
+          <div class="cc" id="milaCount">0 chars</div>
+        </div>
+        <textarea class="ta-mila" id="milaLog" placeholder="Paste the agent's internal Mila / system chat log here..."></textarea>
+      </div>
+      <div class="ebox" id="errorBox"></div>
+      <button class="abtn" id="analyzeBtn" onclick="runAnalysis()">
+        <div class="spin" id="spinner"></div>
+        <span id="btnText">Analyze Call</span>
+      </button>
+    </div>
+    <div class="right" id="rightPanel">
+      <div class="ph" id="placeholder">
+        <div class="ph-icon">📋</div>
+        <div class="ph-title">Ready to Analyze</div>
+        <div class="ph-text">Paste the call transcript and Mila Chat Log, then hit <strong style="color:var(--text2)">AI Analyze Call</strong> to get a full FlightHub QA report — PRI score, 11-attribute breakdown, Mila utilization check, and coaching summary.</div>
+      </div>
+      <div id="resultArea" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-history" class="tab-content">
+  <div class="hwrap">
+    <div class="ptitle">Analysis History</div>
+    <div class="psub">All past QA evaluations — stored locally on this device · Unlimited via IndexedDB</div>
+    <div class="hcontrols">
+      <div class="hcount" id="historyCount">0 analyses</div>
+      <button class="cbtn" onclick="clearHistory()">Clear All</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// PRI COACH v8.0 — FLIGHTHUB QA EDITION
+// ================================================================
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+document.getElementById('transcript').addEventListener('input', function () {
+  document.getElementById('charCount').textContent = this.value.length.toLocaleString() + ' chars';
+});
+document.getElementById('milaLog').addEventListener('input', function () {
+  document.getElementById('milaCount').textContent = this.value.length.toLocaleString() + ' chars';
+});
+
+// ================================================================
+// SYSTEM PROMPT — FlightHub QA Rubric (exact spec)
+// ================================================================
+const SYSTEM_PROMPT = `You are an expert Quality Assurance Evaluator for FlightHub. You will analyze BOTH the call transcript (conversation between the L1 Agent and the Customer) AND the Mila Chat log (agent's internal system queries).
+
+You evaluate agent performance using a bifurcated rubric: Category A (PRI Attributes) and Category B (Customer Service Attributes). Be strictly objective — score based only on explicit evidence in the transcripts. Do not infer actions that are not documented.
+
+SCORING LOGIC:
+- PRI Score (Pass/Fail): Dictated ONLY by Category A. If the agent misses ANY applicable Category A attribute, PRI Score = FAIL.
+- Total QA Score: Total passed attributes across BOTH categories divided by 11.
+- Category B failures lower the Total QA Score but do NOT cause a PRI FAIL.
+- Mark an attribute as "N/A" if the scenario does not trigger it (e.g., no hold was used, so Active Hold Management is N/A).
+
+CATEGORY A — PRI ATTRIBUTES (7 total):
+1. Active Hold Management: If agent places customer on hold, they MUST explain why before placing on hold, AND the hold MUST NOT exceed 5 minutes without agent returning to give a verbal status update.
+2. Cost Transparency: If quoting fees (modifications, cancellations, add-ons), agent MUST break down exact costs (e.g., airline penalty vs. FlightHub fee) before quoting the final total.
+3. Empathetic Acknowledgement: If customer mentions a medical crisis, family emergency, or system frustration, agent MUST deliver a clear, genuine empathy statement BEFORE executing business procedures or asking for booking IDs.
+4. End-to-End Navigation: If directing customer to a web portal (e.g., MyTrips, Xcover, Refundable.me), agent MUST offer to stay on the line and guide them step-by-step. Cannot simply give a URL and end the call.
+5. Clear SLA Setting: If submitting a request that leaves the customer pending, agent MUST provide a specific timeline (e.g., 48-72 hours) AND a Reference/Case ID.
+6. Accountable Escalation (No Ping-Pong): If customer states they already called the airline and were sent back to FlightHub, OR if issue requires airline intervention, agent MUST NOT tell customer to hang up and call the airline again. Agent MUST offer to warm-transfer to L2 for a conference call, or instruct customer to initiate the 3-way call themselves. L1 must provide internal note to L2.
+7. Alternative Bridging: When delivering negative policy news (e.g., "non-refundable"), agent MUST use pivot phrasing (e.g., "Let me check what we can do") to offer an alternative path. ALSO: If customer asks for a callback in case of disconnection, agent must NOT simply say "No." They must state they are not allowed to make outbound calls, but will arrange a callback/document the file so customer does not have to wait in queue again.
+
+CATEGORY B — CUSTOMER SERVICE ATTRIBUTES (4 total):
+8. Standard Greeting: Agent must properly brand the call ("FlightHub" or "JustFly") and introduce themselves by name.
+9. Security Verification: Agent must successfully verify Booking ID, Primary Passenger Name, AND Date of Birth before accessing flight details.
+10. Effective Mila / System Utilization: Agent must search the system/Mila using correct parameters based on customer's exact request. Cross-reference Call Transcript with Mila Chat Log to verify agent investigated the correct issue.
+11. Professional Closure: Agent must ask if customer needs further assistance and properly brand the end of the call.
+
+You MUST return ONLY valid JSON. No markdown, no backticks, no explanation. Return exactly this structure:
+
+{
+  "priScore": "<PASS|FAIL>",
+  "totalPassed": <number 0-11>,
+  "totalQAPercent": <number 0-100>,
+  "attributes": [
+    {
+      "id": 1,
+      "category": "A",
+      "label": "Active Hold Management",
+      "status": "<pass|fail|na>",
+      "note": "<what happened or why N/A>"
+    },
+    {
+      "id": 2,
+      "category": "A",
+      "label": "Cost Transparency",
+      "status": "<pass|fail|na>",
+      "note": "<what happened or why N/A>"
+    },
+    {
+      "id": 3,
+      "category": "A",
+      "label": "Empathetic Acknowledgement",
+      "status": "<pass|fail|na>",
+      "note": "<what happened or why N/A>"
+    },
+    {
+      "id": 4,
+      "category": "A",
+      "label": "End-to-End Navigation",
+      "status": "<pass|fail|na>",
+      "note": "<what happened or why N/A>"
+    },
+    {
+      "id": 5,
+      "category": "A",
+      "label": "Clear SLA Setting",
+      "status": "<pass|fail|na>",
+      "note": "<what happened or why N/A>"
+    },
+    {
+      "id": 6,
+      "category": "A",
+      "label": "Accountable Escalation",
+      "status": "<pass|fail|na>",
+      "note": "<what happened or why N/A>"
+    },
+    {
+      "id": 7,
+      "category": "A",
+      "label": "Alternative Bridging",
+      "status": "<pass|fail|na>",
+      "note": "<what happened or why N/A>"
+    },
+    {
+      "id": 8,
+      "category": "B",
+      "label": "Standard Greeting",
+      "status": "<pass|fail|na>",
+      "note": "<what happened>"
+    },
+    {
+      "id": 9,
+      "category": "B",
+      "label": "Security Verification",
+      "status": "<pass|fail|na>",
+      "note": "<what happened>"
+    },
+    {
+      "id": 10,
+      "category": "B",
+      "label": "Effective Mila Utilization",
+      "status": "<pass|fail|na>",
+      "note": "<what happened>"
+    },
+    {
+      "id": 11,
+      "category": "B",
+      "label": "Professional Closure",
+      "status": "<pass|fail|na>",
+      "note": "<what happened>"
+    }
+  ],
+  "milaAnalysis": {
+    "passed": <true|false>,
+    "customerInquiry": "<what the customer actually asked for>",
+    "agentSearch": "<what the agent investigated or typed in Mila>",
+    "disconnect": "<if passed=false: explain why agent's Mila search was incorrect or inefficient. If passed=true: write 'N/A - Agent searched system accurately based on customer request'>"
+  },
+  "coaching": {
+    "scenario": "<briefly describe the core issue of the call>",
+    "focusAttribute": "<name of the most critical failed attribute, or 'None' if all passed>",
+    "whatYouDid": "<quote the exact misstep from the transcripts, citing the failed attribute. If all passed, provide positive reinforcement>",
+    "whatYouShouldDo": "<explain the mandatory action or positive pivot required by the playbook>",
+    "howItShouldSound": "<exact verbatim scripted example of what agent should have said>"
+  }
+}`;
+
+// ================================================================
+// AI ANALYSIS — ANTHROPIC API
+// ================================================================
+async function runAIAnalysis(transcript, milaLog, agentName, callDate) {
+  const userContent = `Agent: ${agentName}
+Date: ${callDate}
+
+=== CALL TRANSCRIPT ===
+${transcript}
+
+=== MILA CHAT LOG ===
+${milaLog || '(No Mila log provided)'}`;
+
+  const resp = await fetch('/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system: SYSTEM_PROMPT,
+      message: userContent
+    })
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API error ${resp.status}`);
+  }
+
+  const data = await resp.json();
+  const raw_text = data.content.map(b => b.text || '').join('');
+  const clean = raw_text.replace(/```json|```/g, '').trim();
+  return JSON.parse(clean);
+}
+
+// ================================================================
+// RENDER RESULT
+// ================================================================
+function renderResult(r, agentName, callDate, callId, chatId) {
+  const ph = document.getElementById('placeholder');
+  const ra = document.getElementById('resultArea');
+
+  const priClass = r.priScore === 'PASS' ? 'v-pass' : 'v-fail';
+  const priIcon  = r.priScore === 'PASS' ? '✓' : '✗';
+  const pct = r.totalQAPercent;
+  const barColor = pct >= 65 ? 'linear-gradient(90deg,var(--green),#34d399)' : pct >= 45 ? 'linear-gradient(90deg,var(--amber),#fbbf24)' : 'linear-gradient(90deg,var(--red),#f87171)';
+
+  // Attribute rows
+  const catAAttrs = r.attributes.filter(a => a.category === 'A');
+  const catBAttrs = r.attributes.filter(a => a.category === 'B');
+
+  const attrRow = (a) => {
+    const cls = a.status === 'pass' ? 'attr-pass' : a.status === 'fail' ? 'attr-fail' : 'attr-na';
+    const icon = a.status === 'pass' ? '✓' : a.status === 'fail' ? '✗' : '–';
+    const naTag = a.status === 'na' ? `<div class="attr-na-tag">Not Applicable</div>` : '';
+    return `<div class="attr-item ${cls}${a.status==='na'?' na':''}">
+      <div class="attr-icon">${icon}</div>
+      <div style="flex:1">
+        <div class="attr-num">Attribute ${a.id}</div>
+        <div class="attr-label">${a.label}</div>
+        <div class="attr-note">${a.note}</div>
+        ${naTag}
+      </div>
+    </div>`;
+  };
+
+  const failedPRI  = r.attributes.filter(a => a.category === 'A' && a.status === 'fail').map(a => a.label);
+  const failedCS   = r.attributes.filter(a => a.category === 'B' && a.status === 'fail').map(a => a.label);
+
+  const failedPRIHTML = failedPRI.length
+    ? failedPRI.map(l => `<div class="sig-item sig-fail"><div class="sig-dot" style="background:var(--red)"></div><div>${l}</div></div>`).join('')
+    : `<div class="sig-item sig-pass"><div class="sig-dot" style="background:var(--green)"></div><div>None — all applicable PRI attributes passed</div></div>`;
+
+  const failedCSHTML = failedCS.length
+    ? failedCS.map(l => `<div class="sig-item sig-warn"><div class="sig-dot" style="background:var(--amber)"></div><div>${l}</div></div>`).join('')
+    : `<div class="sig-item sig-pass"><div class="sig-dot" style="background:var(--green)"></div><div>None — all CS attributes passed</div></div>`;
+
+  // Mila Analysis
+  const m = r.milaAnalysis;
+  const milaHTML = m.passed
+    ? `<div class="mila-box">
+        <div class="mila-head">🔍 Mila / System Utilization <span class="ai-badge"><span class="ai-pulse"></span>AI</span></div>
+        <div class="mila-body"><div class="mila-ok">✓ ${m.disconnect}</div></div>
+      </div>`
+    : `<div class="mila-box">
+        <div class="mila-head">🔍 Mila / System Utilization — ⚠ Mismatch Detected <span class="ai-badge"><span class="ai-pulse"></span>AI</span></div>
+        <div class="mila-body">
+          <div class="mila-row"><div class="mila-row-label">Customer Inquiry</div><div class="mila-row-val">${m.customerInquiry}</div></div>
+          <div class="mila-row"><div class="mila-row-label">Agent's Search / Action</div><div class="mila-row-val">${m.agentSearch}</div></div>
+          <div class="mila-row"><div class="mila-row-label">The Disconnect</div><div class="mila-disconnect">${m.disconnect}</div></div>
+        </div>
+      </div>`;
+
+  // Coaching Summary
+  const c = r.coaching;
+  const allPassed = failedPRI.length === 0 && failedCS.length === 0;
+  const coachHTML = allPassed
+    ? `<div class="coach-box">
+        <div class="coach-head">🎯 Coaching Summary <span class="ai-badge"><span class="ai-pulse"></span>AI Generated</span></div>
+        <div class="coach-body">
+          <div class="positive-box">
+            <span style="font-size:20px">🏆</span>
+            <div>
+              <div style="font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:12px;color:var(--green-text);margin-bottom:4px">Outstanding Call — All Attributes Passed</div>
+              <div style="font-size:11px;color:var(--green-text);line-height:1.7">${c.whatYouDid}</div>
+            </div>
+          </div>
+        </div>
+      </div>`
+    : `<div class="coach-box">
+        <div class="coach-head">🎯 Coaching Summary <span class="ai-badge"><span class="ai-pulse"></span>AI Generated</span></div>
+        <div class="coach-body">
+          <div class="coach-row"><div class="coach-row-label">Scenario</div><div class="coach-row-val">${c.scenario}</div></div>
+          <div class="coach-divider"></div>
+          <div class="coach-row"><div class="coach-row-label">Focus: ${c.focusAttribute}</div></div>
+          <div class="coach-row"><div class="coach-row-label">What You Did</div><div class="coach-row-val">${c.whatYouDid}</div></div>
+          <div class="coach-row"><div class="coach-row-label">What You Should Do Instead</div><div class="coach-row-val">${c.whatYouShouldDo}</div></div>
+          <div class="coach-row"><div class="coach-row-label">How It Should Sound</div><div class="coach-script">${c.howItShouldSound}</div></div>
+        </div>
+      </div>`;
+
+  ra.innerHTML = `<div class="rarea fade-in">
+
+    <div class="rhead">
+      <div>
+        <div class="ragent">${agentName}</div>
+        <div class="rdate" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:5px;">
+          <span>${callDate}</span>
+          ${callId ? `<span style="color:var(--text2)">Call ID: <strong>${callId}</strong></span>` : ''}
+          ${chatId ? `<span style="color:var(--text2)">Chat ID: <strong>${chatId}</strong></span>` : ''}
+          <span class="ai-badge"><span class="ai-pulse"></span>AI Analysis</span>
+        </div>
+      </div>
+      <div class="vbadge ${priClass}">${priIcon} PRI ${r.priScore}</div>
+    </div>
+
+    <div class="score-banner">
+      <div class="score-pri">
+        <div class="score-pri-label">PRI Score</div>
+        <div class="score-pri-badge ${priClass}" style="font-size:20px;padding:4px 16px;border-radius:8px;">${priIcon} ${r.priScore}</div>
+      </div>
+      <div class="score-qa">
+        <div class="score-qa-num">${r.totalQAPercent}%</div>
+        <div class="score-qa-sub">Total QA Score · ${r.totalPassed} / 11 Attributes Passed</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;">
+      <div style="background:var(--surface2);padding:8px 15px;border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);">Failed PRI Attributes (Category A)</div>
+      <div style="padding:4px 0;">${failedPRIHTML}</div>
+    </div>
+
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;">
+      <div style="background:var(--surface2);padding:8px 15px;border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);">Failed CS Attributes (Category B)</div>
+      <div style="padding:4px 0;">${failedCSHTML}</div>
+    </div>
+
+    <div class="attr-section">
+      <div class="attr-section-head">
+        Category A — PRI Attributes
+        <span class="attr-section-badge cat-a-badge">Strict Pass/Fail · PRI Determining</span>
+      </div>
+      ${catAAttrs.map(attrRow).join('')}
+    </div>
+
+    <div class="attr-section">
+      <div class="attr-section-head">
+        Category B — Customer Service Attributes
+        <span class="attr-section-badge cat-b-badge">Affects Total % Only</span>
+      </div>
+      ${catBAttrs.map(attrRow).join('')}
+    </div>
+
+    ${milaHTML}
+
+    ${coachHTML}
+
+  </div>`;
+
+  ph.style.display = 'none';
+  ra.style.display = 'block';
+}
+
+// ================================================================
+// RUN ANALYSIS
+// ================================================================
+function runAnalysis() {
+  const transcript = document.getElementById('transcript').value.trim();
+  const milaLog    = document.getElementById('milaLog').value.trim();
+  const agentName  = document.getElementById('agentName').value.trim() || 'Unknown Agent';
+  const callDate   = document.getElementById('callDate').value || 'Unknown Date';
+  const callId     = document.getElementById('callId').value.trim();
+  const chatId     = document.getElementById('chatId').value.trim();
+  const eb  = document.getElementById('errorBox');
+  const btn = document.getElementById('analyzeBtn');
+  const sp  = document.getElementById('spinner');
+  const bt  = document.getElementById('btnText');
+
+  if (!transcript || transcript.length < 60) {
+    eb.textContent = 'Please paste a call transcript before analyzing.';
+    eb.style.display = 'block'; return;
+  }
+  eb.style.display = 'none';
+  btn.disabled = true; sp.style.display = 'block';
+  bt.textContent = 'AI Analyzing...';
+
+  const ph = document.getElementById('placeholder');
+  const ra = document.getElementById('resultArea');
+  ph.style.display = 'none';
+  ra.style.display = 'block';
+  ra.innerHTML = `<div style="padding:40px;"><div class="ai-thinking">
+    <div class="ai-thinking-dots"><span></span><span></span><span></span></div>
+    <div class="ai-thinking-label">Claude is evaluating all 11 QA attributes and cross-referencing Mila log...</div>
+  </div></div>`;
+
+  runAIAnalysis(transcript, milaLog, agentName, callDate)
+    .then(result => {
+      renderResult(result, agentName, callDate, callId, chatId);
+      saveHistory(result, agentName, callDate, callId, chatId);
+    })
+    .catch(err => {
+      ra.style.display = 'none';
+      ph.style.display = 'flex';
+      eb.textContent = '⚠ ' + err.message;
+      eb.style.display = 'block';
+    })
+    .finally(() => {
+      btn.disabled = false; sp.style.display = 'none';
+      bt.textContent = 'Analyze Call';
+    });
+}
+
+// ================================================================
+// HISTORY
+// ================================================================
+async function saveHistory(r, agentName, callDate, callId, chatId) {
+  const h = await localforage.getItem('pri_v8') || [];
+  h.unshift({
+    id: Date.now(), agentName, callDate, callId, chatId,
+    priScore: r.priScore,
+    totalPassed: r.totalPassed,
+    totalQAPercent: r.totalQAPercent,
+    timestamp: new Date().toISOString()
+  });
+  await localforage.setItem('pri_v8', h.slice(0, 5000));
+  loadHistory();
+}
+
+async function loadHistory() {
+  const h = await localforage.getItem('pri_v8') || [];
+  document.getElementById('historyCount').textContent = h.length.toLocaleString() + ' analyses';
+  const list = document.getElementById('historyList');
+  if (!h.length) {
+    list.innerHTML = '<div class="hempty">No analysis history yet. Run your first evaluation to get started.</div>';
+    return;
+  }
+  list.innerHTML = h.map(item => {
+    const vc = item.priScore === 'PASS' ? 'v-pass' : 'v-fail';
+    const vi = item.priScore === 'PASS' ? '✓' : '✗';
+    return `<div class="hcard">
+      <div class="hc-info">
+        <div class="hc-agent">${item.agentName}</div>
+        <div class="hc-meta">
+          ${item.callDate}${item.timestamp ? ' · saved ' + item.timestamp.slice(0,10) : ''}
+          ${item.callId ? ` · Call: ${item.callId}` : ''}
+          ${item.chatId ? ` · Chat: ${item.chatId}` : ''}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+        <div class="vbadge ${vc}" style="font-size:10px">${vi} PRI ${item.priScore}</div>
+        <div style="font-size:10px;color:var(--text3)">${item.totalPassed}/11 · ${item.totalQAPercent}%</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function clearHistory() {
+  if (confirm('Clear all history? This cannot be undone.')) {
+    await localforage.removeItem('pri_v8');
+    loadHistory();
+  }
+}
+
+// CSS helpers reused from old version (signal items)
+const sigStyle = `
+.sig-item{display:flex;align-items:center;gap:10px;padding:9px 15px;font-size:11px;line-height:1.5;border-bottom:1px solid transparent;}
+.sig-item:last-child{border-bottom:none;}
+.sig-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sig-pass{background:var(--green-bg);color:var(--green-text);border-bottom-color:rgba(6,95,70,0.06);}
+.sig-warn{background:var(--amber-bg);color:var(--amber-text);border-bottom-color:rgba(146,64,14,0.06);}
+.sig-fail{background:var(--red-bg);color:var(--red-text);border-bottom-color:rgba(153,27,27,0.06);}
+`;
+const styleEl = document.createElement('style');
+styleEl.textContent = sigStyle;
+document.head.appendChild(styleEl);
+
+loadHistory();
+</script>
+</body>
+</html>

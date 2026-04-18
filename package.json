@@ -1,0 +1,7 @@
+{
+  "name": "pri-insight",
+  "version": "8.0.0",
+  "description": "PRI Insight — FlightHub QA Evaluator",
+  "engines": { "node": ">=18" },
+  "private": true
+}
